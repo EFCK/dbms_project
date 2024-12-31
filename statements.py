@@ -3,7 +3,7 @@ statements = [
         account_id CHAR(24) PRIMARY KEY,
         mail VARCHAR(50) NOT NULL UNIQUE,
         full_name VARCHAR(50),
-        is_subscriber BOOL NOT NULL DEFAULT 0,
+        is_subscriber BOOL NOT NULL DEFAULT False,
         registiration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
         country VARCHAR(50),
         sex VARCHAR(50),
@@ -45,7 +45,7 @@ statements = [
         FOREIGN KEY (playlist_id) REFERENCES Playlist (playlist_id),
         FOREIGN KEY (song_id) REFERENCES Song (song_id)
     )""",
-    """CREATE TABLE IF NOT EXISTS Like(
+    """CREATE TABLE IF NOT EXISTS 'Like'(
         user_id CHAR(24),
         song_id CHAR(16),
         PRIMARY KEY (user_id, song_id),
@@ -77,7 +77,7 @@ statements = [
         FOREIGN KEY (album_id) REFERENCES Album (album_id),
         FOREIGN KEY (song_id) REFERENCES Song (song_id)
     )""",
-    """CREATE TABLE IF NOT EXISTS Group(
+    """CREATE TABLE IF NOT EXISTS 'Group'(
         group_id CHAR(16) PRIMARY KEY,
         group_name VARCHAR(50) NOT NULL UNIQUE,
         number_of_members INT,
