@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_restx import Api, Namespace, Resource, fields
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from statements import statements
+from dummy_data_insertion import *
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -11,6 +12,12 @@ jwt = JWTManager(app)
 
 api = Api(app, title="SUPERFITY Database API", version="1.0", description="API documentation for the SUPERTIFY database")
 DATABASE = 'supertify.db'
+
+@app.before_request
+def force_json():
+    if request.method in ['POST', 'PUT', 'PATCH'] and not request.content_type:
+        # Assume the request is JSON if there's no content-type specified
+        request.content_type = 'application/json'
 
 # Initialize database
 def init_db():
@@ -1028,6 +1035,10 @@ class History(Resource):
         return {"message": "History record deleted successfully"}, 200
 
 api.add_namespace(history_ns)
+
+# add dummy data
+insert_dummy_data(DATABASE)
+#insert_dummy_user_data(DATABASE)
 
 if __name__ == '__main__':
     init_db()

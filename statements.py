@@ -100,7 +100,7 @@ statements = [
     """CREATE TABLE IF NOT EXISTS History(
         user_id CHAR(24),
         start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        duration TEXT,
+        duration INTERVAL,
         song CHAR(16),
         PRIMARY KEY (user_id, start_time),
         FOREIGN KEY (user_id) REFERENCES User (user_id),
