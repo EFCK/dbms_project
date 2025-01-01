@@ -39,90 +39,90 @@ def insert_dummy_data(DATABASE):
         """)
         connection.commit()
         # Insert dummy data into the Fallower table
-        cursor.execute("""
-            INSERT INTO Fallower (user_id_1, user_id_2) VALUES
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '64KZGKHPS2HIOVRCN0ERNG28'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '87A0V0LUU5794LVQF34J25FM'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('87A0V0LUU5794LVQF34J25FM', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('1A1SBQP9W8Y1J195HFVARMJR', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('3DSJQ63NOBPTYRDJKIM27CX6', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('5GJLFW72REGUEHQOCL33MS1K', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('YJ0CUDKGTHXMTXU3EPUV1IEZ', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('0MR4A2OLLKODINYHGSLNHYI3', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('2PIWPJSZONEFX3CV9VBOWOMI', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            ('VT8X496EQQ56DTG0BY2FLE0W', '41T70U4BZZQGZFNXKXNQ8ZYT')
-        """)
+        # cursor.execute("""
+        #     INSERT INTO Follower (user_id_1, user_id_2) VALUES
+        #     ('41T70U4BZZQGZFNXKXNQ8ZYT', '64KZGKHPS2HIOVRCN0ERNG28'),
+        #     ('41T70U4BZZQGZFNXKXNQ8ZYT', '87A0V0LUU5794LVQF34J25FM'),
+        #     ('64KZGKHPS2HIOVRCN0ERNG28', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('87A0V0LUU5794LVQF34J25FM', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('1A1SBQP9W8Y1J195HFVARMJR', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('3DSJQ63NOBPTYRDJKIM27CX6', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('5GJLFW72REGUEHQOCL33MS1K', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('YJ0CUDKGTHXMTXU3EPUV1IEZ', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('0MR4A2OLLKODINYHGSLNHYI3', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('2PIWPJSZONEFX3CV9VBOWOMI', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+        #     ('VT8X496EQQ56DTG0BY2FLE0W', '41T70U4BZZQGZFNXKXNQ8ZYT')
+        # """)
         # Insert dummy data into the Playlist table
         cursor.execute("""
             INSERT INTO Playlist (playlist_id, playlist_name, playlist_description, playlist_image, creator) VALUES
-            (URJXRKU1PPG7Q5EO, 'AGLAMA GARANTILI KARISIK', 'A playlist of popular rock songs', NULL, '41T70U4BZZQGZFNXKXNQ8ZYT'),
-            (BNDGYQOKWUAP6A8G, 'Lofi', 'Studentdying musics', NULL, '64KZGKHPS2HIOVRCN0ERNG28'),
-            (IS78ELI2DQ4HD6SY, 'Zam yaparken dinlemelik müzikler', NULL, NULL, '87A0V0LUU5794LVQF34J25FM')
+            (1, 'AGLAMA GARANTILI KARISIK', 'A playlist of popular rock songs', NULL, '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            (2, 'Lofi', 'Studentdying musics', NULL, '64KZGKHPS2HIOVRCN0ERNG28'),
+            (3, 'Zam yaparken dinlemelik müzikler', NULL, NULL, '87A0V0LUU5794LVQF34J25FM')
         """)
         # Insert dummy data into the Playlist_User table
         cursor.execute("""
             INSERT INTO Playlist_User (user, fallows) VALUES
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', 'URJXRKU1PPG7Q'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', 'BNDGYQOKWUAP6A8G'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', 'IS78ELI2DQ4HD6SY'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', 'URJXRKU1PPG7Q'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', 'BNDGYQOKWUAP6A8G'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', 'IS78ELI2DQ4HD6SY'),
-            ('87A0V0LUU5794LVQF34J25FM', 'URJXRKU1PPG7Q'),
-            ('87A0V0LUU5794LVQF34J25FM', 'BNDGYQOKWUAP6A8G'),
-            ('87A0V0LUU5794LVQF34J25FM', 'IS78ELI2DQ4HD6SY')
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '1'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '3'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '1'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '2'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '3'),
+            ('87A0V0LUU5794LVQF34J25FM', '1'),
+            ('87A0V0LUU5794LVQF34J25FM', '2'),
+            ('87A0V0LUU5794LVQF34J25FM', '3')
         """)
         # Insert dummy data into the Song table
         cursor.execute("""
             INSERT INTO Song (song_id, song_name, song_time, song_image, audio) VALUES
-            ('1A1SBQP9W812J195HFVARMJR', 'Stairway to Heaven', '08:02', NULL, NULL),
-            ('3DSJQ63NZNPTYRDJKIM27CX6', 'Bohemian Rhapsody', '05:55', NULL, NULL),
-            ('5GJLFW12REGUEHQOCL33MS1K', 'Metal Gear Solid 3 Theme', '02:30', NULL, NULL),
-            ('YJ0CUDKGTHXMTXU3EFEV1IEZ', 'Bilgewater', '03:00', NULL, NULL),
-            ('0MR4A202LKODINYHGSLNHYI3', 'Kiss of Death', '04:00', NULL, NULL),
-            ('2PIWPJSZTWOFX3CV9VBOWOMI', 'Under the tree', '02:02', NULL, NULL),
-            ('VT8X566EQQ56DTG0BY2FLE0W', '800kmid', '02:00', NULL, NULL),
-            ('41T70U4ZZZQGZFNXKXNQ8ZYT', 'Tunceredits', '03:30', NULL, NULL),
-            ('64KZGKHPSASIOVRCN0ERNG28', '345math', '03:30', NULL, NULL),
-            ('156ASDASDASFASGADASD1254', 'take me out', '03:57', NULL, NULL),
+            ('1A1SBQP9W812J195HF', 'Stairway to Heaven', 482, NULL, NULL),
+            ('3DSJQ63NZNPTYRDJKI', 'Bohemian Rhapsody', 355, NULL, NULL),
+            ('5GJLFW12REGUEHQOCL', 'Metal Gear Solid 3 Theme', 150, NULL, NULL),
+            ('YJ0CUDKGTHXMTXU3EF', 'Bilgewater', 180, NULL, NULL),
+            ('0MR4A202LKODINYHGS', 'Kiss of Death', 240, NULL, NULL),
+            ('2PIWPJSZTWOFX3CV9V', 'Under the tree', 122, NULL, NULL),
+            ('VT8X566EQQ56DTG0BY', '800kmid', 120, NULL, NULL),
+            ('41T70U4ZZZQGZFNXKX', 'Tunceredits', 210, NULL, NULL),
+            ('64KZGKHPSASIOVRCN0', '345math', 210, NULL, NULL),
+            ('156ASDASDASFASGADA', 'take me out', 237, NULL, NULL)
         """)
         # Insert dummy data into the Playlist_Song table
         cursor.execute("""
             INSERT INTO Playlist_Song (playlist_id, song_id) VALUES
-            ('URJXRKU1PPG7Q', '1A1SBQP9W812J195HFVARMJR'),
-            ('URJXRKU1PPG7Q', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            ('URJXRKU1PPG7Q', '5GJLFW12REGUEHQOCL33MS1K'),
-            ('BNDGYQOKWUAP6A8G', 'YJ0CUDKGTHXMTXU3EFEV1IEZ'),
-            ('BNDGYQOKWUAP6A8G', '0MR4A202LKODINYHGSLNHYI3'),
-            ('IS78ELI2DQ4HD6SY', '2PIWPJSZTWOFX3CV9VBOWOMI')
+            ('1', '1A1SBQP9W812J195HF'),
+            ('1', '3DSJQ63NZNPTYRDJKI'),
+            ('1', '5GJLFW12REGUEHQOCL'),
+            ('2', 'YJ0CUDKGTHXMTXU3EF'),
+            ('2', '0MR4A202LKODINYHGS'),
+            ('3', '2PIWPJSZTWOFX3CV9V')
         """)
         # Insert dummy data into the 'Like' table
         cursor.execute("""
             INSERT INTO 'Like' (user_id, song_id) VALUES
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '1A1SBQP9W812J195HFVARMJR'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '5GJLFW12REGUEHQOCL33MS1K'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', '1A1SBQP9W812J195HFVARMJR'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', '5GJLFW12REGUEHQOCL33MS1K'),
-            ('87A0V0LUU5794LVQF34J25FM', '1A1SBQP9W812J195HFVARMJR'),
-            ('87A0V0LUU5794LVQF34J25FM', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            ('87A0V0LUU5794LVQF34J25FM', '5GJLFW12REGUEHQOCL33MS1K'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '1A1SBQP9W812J195HF'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '3DSJQ63NZNPTYRDJKI'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '5GJLFW12REGUEHQOCL'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '1A1SBQP9W812J195HF'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '3DSJQ63NZNPTYRDJKI'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '5GJLFW12REGUEHQOCL'),
+            ('87A0V0LUU5794LVQF34J25FM', '1A1SBQP9W812J195HF'),
+            ('87A0V0LUU5794LVQF34J25FM', '3DSJQ63NZNPTYRDJKI'),
+            ('87A0V0LUU5794LVQF34J25FM', '5GJLFW12REGUEHQOCL')
         """)
         # Insert dummy data into the Genre table
         cursor.execute("""
             INSERT INTO Genre (song_id, genre) VALUES
-            ('1A1SBQP9W812J195HFVARMJR', 'Rock'),
-            ('3DSJQ63NZNPTYRDJKIM27CX6', 'Rock'),
-            ('5GJLFW12REGUEHQOCL33MS1K', 'Jazz'),
-            ('YJ0CUDKGTHXMTXU3EFEV1IEZ', 'Rock'),
-            ('0MR4A202LKODINYHGSLNHYI3', 'Pop'),
-            ('2PIWPJSZTWOFX3CV9VBOWOMI', 'Jazz'),
-            ('VT8X566EQQ56DTG0BY2FLE0W', 'Rap'),
-            ('41T70U4ZZZQGZFNXKXNQ8ZYT', 'Pop'),
-            ('64KZGKHPSASIOVRCN0ERNG28', 'Rock'),
-            ('156ASDASDASFASGADASD1254', 'Rock'),
+            ('1A1SBQP9W812J195HF', 'Rock'),
+            ('3DSJQ63NZNPTYRDJKI', 'Rock'),
+            ('5GJLFW12REGUEHQOCL', 'Jazz'),
+            ('YJ0CUDKGTHXMTXU3EF', 'Rock'),
+            ('0MR4A202LKODINYHGS', 'Pop'),
+            ('2PIWPJSZTWOFX3CV9V', 'Jazz'),
+            ('VT8X566EQQ56DTG0BY', 'Rap'),
+            ('41T70U4ZZZQGZFNXKX', 'Pop'),
+            ('64KZGKHPSASIOVRCN0', 'Rock'),
+            ('156ASDASDASFASGADA', 'Rock')
         """)
         # Insert dummy data into the Album table
         cursor.execute("""
@@ -130,21 +130,21 @@ def insert_dummy_data(DATABASE):
             ('85XC5Z8F33UL4JS2', 'This fffire', 'This is a dummy album', NULL),
             ('P1RUC42YA8O3KOMU', 'The Wall', 'This is a dummy album', NULL),
             ('W6LMTZWGR4IVRK6C', 'Evolve', 'This is a dummy album', NULL),
-            ('DBF505QZY9CE8P0V', 'The Division Bell', 'This is a dummy album', NULL),
+            ('DBF505QZY9CE8P0V', 'The Division Bell', 'This is a dummy album', NULL)
         """)
         # Insert dummy data into the Album_Info table
         cursor.execute("""
             Insert INTO Album_Info (album_id, song_id) VALUES
-            ('85XC5Z8F33UL4JS2', '1A1SBQP9W812J195HFVARMJR'),
-            ('P1RUC42YA8O3KOMU', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            ('W6LMTZWGR4IVRK6C', '5GJLFW12REGUEHQOCL33MS1K'),
-            ('DBF505QZY9CE8P0V', 'YJ0CUDKGTHXMTXU3EFEV1IEZ'),
-            ('85XC5Z8F33UL4JS2', '0MR4A202LKODINYHGSLNHYI3'),
-            ('P1RUC42YA8O3KOMU', '2PIWPJSZTWOFX3CV9VBOWOMI'),
-            ('W6LMTZWGR4IVRK6C', 'VT8X566EQQ56DTG0BY2FLE0W'),
-            ('DBF505QZY9CE8P0V', '41T70U4ZZZQGZFNXKXNQ8ZYT'),
-            ('85XC5Z8F33UL4JS2', '64KZGKHPSASIOVRCN0ERNG28'),
-            ('P1RUC42YA8O3KOMU', '156ASDASDASFASGADASD1254'),
+            ('85XC5Z8F33UL4JS2', '1A1SBQP9W812J195HF'),
+            ('P1RUC42YA8O3KOMU', '3DSJQ63NZNPTYRDJKI'),
+            ('W6LMTZWGR4IVRK6C', '5GJLFW12REGUEHQOCL'),
+            ('DBF505QZY9CE8P0V', 'YJ0CUDKGTHXMTXU3EF'),
+            ('85XC5Z8F33UL4JS2', '0MR4A202LKODINYHGS'),
+            ('P1RUC42YA8O3KOMU', '2PIWPJSZTWOFX3CV9V'),
+            ('W6LMTZWGR4IVRK6C', 'VT8X566EQQ56DTG0BY'),
+            ('DBF505QZY9CE8P0V', '41T70U4ZZZQGZFNXKX'),
+            ('85XC5Z8F33UL4JS2', '64KZGKHPSASIOVRCN0'),
+            ('P1RUC42YA8O3KOMU', '156ASDASDASFASGADA')
         """)
         # Insert dummy data into the 'Group' table
         cursor.execute("""
@@ -153,7 +153,7 @@ def insert_dummy_data(DATABASE):
             ('O0QTB31XA8N3KOLT', 'Queen', NULL),
             ('V5KLSZVFQ3HVRJ5B', 'Pink Floyd', NULL),
             ('CBE4Z4PYX9BD7PZU', 'Metallica', NULL),
-            ('J68M69JQ4E5VEUTC', 'Led Zeppelin', NULL),
+            ('J68M69JQ4E5VEUTC', 'Led Zeppelin', NULL)
         """)
         # Insert dummy data into the Artist table
         cursor.execute("""
@@ -170,7 +170,7 @@ def insert_dummy_data(DATABASE):
             ('CBE4Z4PYX9BD7PZU', 'Lars Ulrich'),
             ('CBE4Z4PYX9BD7PZU', 'Kirk Hammett'),
             ('CBE4Z4PYX9BD7PZU', 'Robert Trujillo'),
-            ('J68M69JQ4E5VEUTC', 'Robert Plant'),
+            ('J68M69JQ4E5VEUTC', 'Robert Plant')
         """)
         # Insert dummy data into the Album_Group table
         cursor.execute("""
@@ -180,16 +180,16 @@ def insert_dummy_data(DATABASE):
             ('W6LMTZWGR4IVRK6C', 'V5KLSZVFQ3HVRJ5B'),
             ('DBF505QZY9CE8P0V', 'V5KLSZVFQ3HVRJ5B'),
             ('85XC5Z8F33UL4JS2', 'CBE4Z4PYX9BD7PZU'),
-            ('P1RUC42YA8O3KOMU', 'J68M69JQ4E5VEUTC'),
+            ('P1RUC42YA8O3KOMU', 'J68M69JQ4E5VEUTC')
         """)
         # Insert dummy data into the History table
         cursor.execute("""
             Insert INTO History (user_id, start_time, duration, song) VALUES
-            (41T70U4BZZQGZFNXKXNQ8ZYT, '2021-05-01 12:00:00', '00:03:30', '1A1SBQP9W812J195HFVARMJR'),
-            (64KZGKHPS2HIOVRCN0ERNG28, '2021-05-01 12:00:00', '00:03:30', '3DSJQ63NZNPTYRDJKIM27CX6'),
-            (87A0V0LUU5794LVQF34J25FM, '2021-05-01 12:00:00', '00:03:30', '5GJLFW12REGUEHQOCL33MS1K'),
-            (1A1SBQP9W8Y1J195HFVARMJR, '2021-05-01 12:00:00', '00:03:30', 'YJ0CUDKGTHXMTXU3EFEV1IEZ'),
-            (41T70U4BZZQGZFNXKXNQ8ZYT, '2021-05-01 12:00:00', '00:03:30', '0MR4A202LKODINYHGSLNHYI3'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 12:00:00', 210, '1A1SBQP9W812J195HF'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '2021-05-01 12:00:00', 210, '3DSJQ63NZNPTYRDJKI'),
+            ('87A0V0LUU5794LVQF34J25FM', '2021-05-01 12:00:00', 210, '5GJLFW12REGUEHQOCL'),
+            ('1A1SBQP9W8Y1J195HFVARMJR', '2021-05-01 12:00:00', 210, 'YJ0CUDKGTHXMTXU3EF'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 12:00:00', 210, '0MR4A202LKODINYHGS')
         """)
 
         connection.commit()

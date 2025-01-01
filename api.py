@@ -254,68 +254,68 @@ class User(Resource):
 
 api.add_namespace(user_ns)
 
-# ---------------------------- Fallower ----------------------------
+# ---------------------------- Follower ----------------------------
 
-fallower_ns = Namespace('followers', description="Manage follower relationships")
-fallower_model = api.model('Follower', {
-    'user_id_1': fields.String(required=True, description="The ID of the user who is following"),
-    'user_id_2': fields.String(required=True, description="The ID of the user being followed")
-})
+# follower_ns = Namespace('followers', description="Manage follower relationships")
+# follower_model = api.model('Follower', {
+#     'user_id_1': fields.String(required=True, description="The ID of the user who is following"),
+#     'user_id_2': fields.String(required=True, description="The ID of the user being followed")
+# })
 
-@fallower_ns.route('/')
-class FollowerList(Resource):
-    @jwt_required()
-    @fallower_ns.marshal_list_with(fallower_model)
-    def get(self):
-        """Get all follower relationships"""
-        connection = get_db_connection()
-        followers = connection.execute('SELECT * FROM Fallower').fetchall()
-        connection.close()
-        return [dict(follower) for follower in followers], 200
+# @follower_ns.route('/')
+# class followerList(Resource):
+#     @jwt_required()
+#     @follower_ns.marshal_list_with(follower_model)
+#     def get(self):
+#         """Get all follower relationships"""
+#         connection = get_db_connection()
+#         followers = connection.execute('SELECT * FROM Follower').fetchall()
+#         connection.close()
+#         return [dict(follower) for follower in followers], 200
 
-    @jwt_required()
-    @fallower_ns.expect(fallower_model)
-    def post(self):
-        """Create a new follower relationship"""
-        data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO Fallower (user_id_1, user_id_2) VALUES (?, ?)',
-                       (data['user_id_1'], data['user_id_2']))
-        connection.commit()
-        connection.close()
-        return {"message": "Follower relationship created successfully"}, 201
+#     @jwt_required()
+#     @follower_ns.expect(follower_model)
+#     def post(self):
+#         """Create a new follower relationship"""
+#         data = request.json
+#         connection = get_db_connection()
+#         cursor = connection.cursor()
+#         cursor.execute('INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)',
+#                        (data['user_id_1'], data['user_id_2']))
+#         connection.commit()
+#         connection.close()
+#         return {"message": "follower relationship created successfully"}, 201
 
-@fallower_ns.route('/<string:user_id_1>/followers/<string:user_id_2>')
-class Follower(Resource):
-    @jwt_required()
-    @fallower_ns.marshal_with(fallower_model)
-    def get(self, user_id_1, user_id_2):
-        """Get a specific follower relationship"""
-        connection = get_db_connection()
-        follower = connection.execute(
-            'SELECT * FROM Fallower WHERE user_id_1 = ? AND user_id_2 = ?',
-            (user_id_1, user_id_2)
-        ).fetchone()
-        connection.close()
-        if follower is None:
-            return {"message": "Follower relationship not found"}, 404
-        return dict(follower), 200
+# @follower_ns.route('/<string:user_id_1>/followers/<string:user_id_2>')
+# class follower(Resource):
+#     @jwt_required()
+#     @follower_ns.marshal_with(follower_model)
+#     def get(self, user_id_1, user_id_2):
+#         """Get a specific follower relationship"""
+#         connection = get_db_connection()
+#         follower = connection.execute(
+#             'SELECT * FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
+#             (user_id_1, user_id_2)
+#         ).fetchone()
+#         connection.close()
+#         if follower is None:
+#             return {"message": "follower relationship not found"}, 404
+#         return dict(follower), 200
 
-    @jwt_required()
-    def delete(self, user_id_1, user_id_2):
-        """Delete a follower relationship"""
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('DELETE FROM Fallower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
-        if cursor.rowcount == 0:
-            connection.close()
-            return {"message": "Follower relationship not found"}, 404
-        connection.commit()
-        connection.close()
-        return {"message": "Follower relationship deleted successfully"}, 200
+#     @jwt_required()
+#     def delete(self, user_id_1, user_id_2):
+#         """Delete a follower relationship"""
+#         connection = get_db_connection()
+#         cursor = connection.cursor()
+#         cursor.execute('DELETE FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
+#         if cursor.rowcount == 0:
+#             connection.close()
+#             return {"message": "follower relationship not found"}, 404
+#         connection.commit()
+#         connection.close()
+#         return {"message": "follower relationship deleted successfully"}, 200
 
-api.add_namespace(fallower_ns)
+# api.add_namespace(follower_ns)
 
 # ---------------------------- Playlist ----------------------------
 playlist_ns = Namespace('playlists', description="Manage playlists")
@@ -1037,9 +1037,10 @@ class History(Resource):
 api.add_namespace(history_ns)
 
 # add dummy data
-insert_dummy_data(DATABASE)
+
 #insert_dummy_user_data(DATABASE)
 
 if __name__ == '__main__':
     init_db()
+    insert_dummy_data(DATABASE)
     app.run(debug=True)

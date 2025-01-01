@@ -16,7 +16,7 @@ statements = [
         favorite_genre VARCHAR(50),
         user_image BLOB
     )""",
-    """CREATE TABLE IF NOT EXISTS Fallower(
+    """CREATE TABLE IF NOT EXISTS Follower(
         user_id_1 CHAR(24),
         user_id_2 CHAR(24),
         PRIMARY KEY (user_id_1, user_id_2),
@@ -30,6 +30,13 @@ statements = [
         playlist_image BLOB,
         creator CHAR(24),
         FOREIGN KEY (creator) REFERENCES User (user_id)
+    )""",
+        """CREATE TABLE IF NOT EXISTS Song(
+        song_id CHAR(16) PRIMARY KEY,
+        song_name VARCHAR(50) NOT NULL,
+        song_time INT NOT NULL,
+        song_image BLOB,
+        audio BLOB
     )""",
     """CREATE TABLE IF NOT EXISTS Playlist_User(
         user CHAR(24),
@@ -51,13 +58,6 @@ statements = [
         PRIMARY KEY (user_id, song_id),
         FOREIGN KEY (user_id) REFERENCES User (user_id),
         FOREIGN KEY (song_id) REFERENCES Song (song_id)
-    )""",
-    """CREATE TABLE IF NOT EXISTS Song(
-        song_id CHAR(16) PRIMARY KEY,
-        song_name VARCHAR(50) NOT NULL,
-        song_time TEXT NOT NULL,
-        song_image BLOB,
-        audio BLOB
     )""",
     """CREATE TABLE IF NOT EXISTS Genre(
         song_id CHAR(16) PRIMARY KEY,
@@ -100,7 +100,7 @@ statements = [
     """CREATE TABLE IF NOT EXISTS History(
         user_id CHAR(24),
         start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        duration INTERVAL,
+        duration INT,
         song CHAR(16),
         PRIMARY KEY (user_id, start_time),
         FOREIGN KEY (user_id) REFERENCES User (user_id),
