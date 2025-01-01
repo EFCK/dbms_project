@@ -256,66 +256,66 @@ api.add_namespace(user_ns)
 
 # ---------------------------- Follower ----------------------------
 
-# follower_ns = Namespace('followers', description="Manage follower relationships")
-# follower_model = api.model('Follower', {
-#     'user_id_1': fields.String(required=True, description="The ID of the user who is following"),
-#     'user_id_2': fields.String(required=True, description="The ID of the user being followed")
-# })
+follower_ns = Namespace('followers', description="Manage follower relationships")
+follower_model = api.model('Follower', {
+    'user_id_1': fields.String(required=True, description="The ID of the user who is following"),
+    'user_id_2': fields.String(required=True, description="The ID of the user being followed")
+})
 
-# @follower_ns.route('/')
-# class followerList(Resource):
-#     @jwt_required()
-#     @follower_ns.marshal_list_with(follower_model)
-#     def get(self):
-#         """Get all follower relationships"""
-#         connection = get_db_connection()
-#         followers = connection.execute('SELECT * FROM Follower').fetchall()
-#         connection.close()
-#         return [dict(follower) for follower in followers], 200
+@follower_ns.route('/')
+class followerList(Resource):
+    @jwt_required()
+    @follower_ns.marshal_list_with(follower_model)
+    def get(self):
+        """Get all follower relationships"""
+        connection = get_db_connection()
+        followers = connection.execute('SELECT * FROM Follower').fetchall()
+        connection.close()
+        return [dict(follower) for follower in followers], 200
 
-#     @jwt_required()
-#     @follower_ns.expect(follower_model)
-#     def post(self):
-#         """Create a new follower relationship"""
-#         data = request.json
-#         connection = get_db_connection()
-#         cursor = connection.cursor()
-#         cursor.execute('INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)',
-#                        (data['user_id_1'], data['user_id_2']))
-#         connection.commit()
-#         connection.close()
-#         return {"message": "follower relationship created successfully"}, 201
+    @jwt_required()
+    @follower_ns.expect(follower_model)
+    def post(self):
+        """Create a new follower relationship"""
+        data = request.json
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)',
+                       (data['user_id_1'], data['user_id_2']))
+        connection.commit()
+        connection.close()
+        return {"message": "follower relationship created successfully"}, 201
 
-# @follower_ns.route('/<string:user_id_1>/followers/<string:user_id_2>')
-# class follower(Resource):
-#     @jwt_required()
-#     @follower_ns.marshal_with(follower_model)
-#     def get(self, user_id_1, user_id_2):
-#         """Get a specific follower relationship"""
-#         connection = get_db_connection()
-#         follower = connection.execute(
-#             'SELECT * FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
-#             (user_id_1, user_id_2)
-#         ).fetchone()
-#         connection.close()
-#         if follower is None:
-#             return {"message": "follower relationship not found"}, 404
-#         return dict(follower), 200
+@follower_ns.route('/<string:user_id_1>/followers/<string:user_id_2>')
+class follower(Resource):
+    @jwt_required()
+    @follower_ns.marshal_with(follower_model)
+    def get(self, user_id_1, user_id_2):
+        """Get a specific follower relationship"""
+        connection = get_db_connection()
+        follower = connection.execute(
+            'SELECT * FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
+            (user_id_1, user_id_2)
+        ).fetchone()
+        connection.close()
+        if follower is None:
+            return {"message": "follower relationship not found"}, 404
+        return dict(follower), 200
 
-#     @jwt_required()
-#     def delete(self, user_id_1, user_id_2):
-#         """Delete a follower relationship"""
-#         connection = get_db_connection()
-#         cursor = connection.cursor()
-#         cursor.execute('DELETE FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
-#         if cursor.rowcount == 0:
-#             connection.close()
-#             return {"message": "follower relationship not found"}, 404
-#         connection.commit()
-#         connection.close()
-#         return {"message": "follower relationship deleted successfully"}, 200
+    @jwt_required()
+    def delete(self, user_id_1, user_id_2):
+        """Delete a follower relationship"""
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute('DELETE FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
+        if cursor.rowcount == 0:
+            connection.close()
+            return {"message": "follower relationship not found"}, 404
+        connection.commit()
+        connection.close()
+        return {"message": "follower relationship deleted successfully"}, 200
 
-# api.add_namespace(follower_ns)
+api.add_namespace(follower_ns)
 
 # ---------------------------- Playlist ----------------------------
 playlist_ns = Namespace('playlists', description="Manage playlists")
@@ -741,7 +741,7 @@ api.add_namespace(album_ns)
 
 # ---------------------------- Album_Info ----------------------------
 
-album_info_ns = Namespace('album_info', description="Manage relationships between albums and songs")
+album_info_ns = Namespace('album_infos', description="Manage relationships between albums and songs")
 album_info_model = api.model('AlbumInfo', {
     'album_id': fields.String(required=True, description="The ID of the album"),
     'song_id': fields.String(required=True, description="The ID of the song")
@@ -979,7 +979,7 @@ api.add_namespace(artist_ns)
 
 # ---------------------------- History ----------------------------
 
-history_ns = Namespace('history', description="Manage user listening history")
+history_ns = Namespace('histories', description="Manage user listening history")
 history_model = api.model('History', {
     'user_id': fields.String(required=True, description="The ID of the user"),
     'start_time': fields.String(required=True, description="The start time of the listening session"),

@@ -39,20 +39,21 @@ def insert_dummy_data(DATABASE):
         """)
         connection.commit()
         # Insert dummy data into the Fallower table
-        # cursor.execute("""
-        #     INSERT INTO Follower (user_id_1, user_id_2) VALUES
-        #     ('41T70U4BZZQGZFNXKXNQ8ZYT', '64KZGKHPS2HIOVRCN0ERNG28'),
-        #     ('41T70U4BZZQGZFNXKXNQ8ZYT', '87A0V0LUU5794LVQF34J25FM'),
-        #     ('64KZGKHPS2HIOVRCN0ERNG28', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('87A0V0LUU5794LVQF34J25FM', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('1A1SBQP9W8Y1J195HFVARMJR', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('3DSJQ63NOBPTYRDJKIM27CX6', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('5GJLFW72REGUEHQOCL33MS1K', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('YJ0CUDKGTHXMTXU3EPUV1IEZ', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('0MR4A2OLLKODINYHGSLNHYI3', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('2PIWPJSZONEFX3CV9VBOWOMI', '41T70U4BZZQGZFNXKXNQ8ZYT'),
-        #     ('VT8X496EQQ56DTG0BY2FLE0W', '41T70U4BZZQGZFNXKXNQ8ZYT')
-        # """)
+        cursor.execute("""
+            INSERT INTO Follower (user_id_1, user_id_2) VALUES
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '64KZGKHPS2HIOVRCN0ERNG28'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '87A0V0LUU5794LVQF34J25FM'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('87A0V0LUU5794LVQF34J25FM', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('1A1SBQP9W8Y1J195HFVARMJR', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('3DSJQ63NOBPTYRDJKIM27CX6', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('5GJLFW72REGUEHQOCL33MS1K', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('YJ0CUDKGTHXMTXU3EPUV1IEZ', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('0MR4A2OLLKODINYHGSLNHYI3', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('2PIWPJSZONEFX3CV9VBOWOMI', '41T70U4BZZQGZFNXKXNQ8ZYT'),
+            ('VT8X496EQQ56DTG0BY2FLE0W', '41T70U4BZZQGZFNXKXNQ8ZYT')
+        """)
+        connection.commit()
         # Insert dummy data into the Playlist table
         cursor.execute("""
             INSERT INTO Playlist (playlist_id, playlist_name, playlist_description, playlist_image, creator) VALUES
@@ -60,6 +61,7 @@ def insert_dummy_data(DATABASE):
             (2, 'Lofi', 'Studentdying musics', NULL, '64KZGKHPS2HIOVRCN0ERNG28'),
             (3, 'Zam yaparken dinlemelik müzikler', NULL, NULL, '87A0V0LUU5794LVQF34J25FM')
         """)
+        connection.commit()
         # Insert dummy data into the Playlist_User table
         cursor.execute("""
             INSERT INTO Playlist_User (user, fallows) VALUES
@@ -73,6 +75,7 @@ def insert_dummy_data(DATABASE):
             ('87A0V0LUU5794LVQF34J25FM', '2'),
             ('87A0V0LUU5794LVQF34J25FM', '3')
         """)
+        connection.commit()
         # Insert dummy data into the Song table
         cursor.execute("""
             INSERT INTO Song (song_id, song_name, song_time, song_image, audio) VALUES
@@ -87,6 +90,7 @@ def insert_dummy_data(DATABASE):
             ('64KZGKHPSASIOVRCN0', '345math', 210, NULL, NULL),
             ('156ASDASDASFASGADA', 'take me out', 237, NULL, NULL)
         """)
+        connection.commit()
         # Insert dummy data into the Playlist_Song table
         cursor.execute("""
             INSERT INTO Playlist_Song (playlist_id, song_id) VALUES
@@ -97,6 +101,7 @@ def insert_dummy_data(DATABASE):
             ('2', '0MR4A202LKODINYHGS'),
             ('3', '2PIWPJSZTWOFX3CV9V')
         """)
+        connection.commit()
         # Insert dummy data into the 'Like' table
         cursor.execute("""
             INSERT INTO 'Like' (user_id, song_id) VALUES
@@ -110,6 +115,7 @@ def insert_dummy_data(DATABASE):
             ('87A0V0LUU5794LVQF34J25FM', '3DSJQ63NZNPTYRDJKI'),
             ('87A0V0LUU5794LVQF34J25FM', '5GJLFW12REGUEHQOCL')
         """)
+        connection.commit()
         # Insert dummy data into the Genre table
         cursor.execute("""
             INSERT INTO Genre (song_id, genre) VALUES
@@ -124,6 +130,7 @@ def insert_dummy_data(DATABASE):
             ('64KZGKHPSASIOVRCN0', 'Rock'),
             ('156ASDASDASFASGADA', 'Rock')
         """)
+        connection.commit()
         # Insert dummy data into the Album table
         cursor.execute("""
             INSERT INTO Album (album_id, album_name, about, album_image) VALUES
@@ -132,6 +139,7 @@ def insert_dummy_data(DATABASE):
             ('W6LMTZWGR4IVRK6C', 'Evolve', 'This is a dummy album', NULL),
             ('DBF505QZY9CE8P0V', 'The Division Bell', 'This is a dummy album', NULL)
         """)
+        connection.commit()
         # Insert dummy data into the Album_Info table
         cursor.execute("""
             Insert INTO Album_Info (album_id, song_id) VALUES
@@ -146,6 +154,7 @@ def insert_dummy_data(DATABASE):
             ('85XC5Z8F33UL4JS2', '64KZGKHPSASIOVRCN0'),
             ('P1RUC42YA8O3KOMU', '156ASDASDASFASGADA')
         """)
+        connection.commit()
         # Insert dummy data into the 'Group' table
         cursor.execute("""
             INSERT INTO 'Group' (group_id, group_name, group_image) VALUES
@@ -155,6 +164,7 @@ def insert_dummy_data(DATABASE):
             ('CBE4Z4PYX9BD7PZU', 'Metallica', NULL),
             ('J68M69JQ4E5VEUTC', 'Led Zeppelin', NULL)
         """)
+        connection.commit()
         # Insert dummy data into the Artist table
         cursor.execute("""
             INSERT INTO Artist (group_id, full_name) VALUES
@@ -172,6 +182,7 @@ def insert_dummy_data(DATABASE):
             ('CBE4Z4PYX9BD7PZU', 'Robert Trujillo'),
             ('J68M69JQ4E5VEUTC', 'Robert Plant')
         """)
+        connection.commit()
         # Insert dummy data into the Album_Group table
         cursor.execute("""
             INSERT INTO Album_Group (album_id, group_id) VALUES
@@ -182,6 +193,7 @@ def insert_dummy_data(DATABASE):
             ('85XC5Z8F33UL4JS2', 'CBE4Z4PYX9BD7PZU'),
             ('P1RUC42YA8O3KOMU', 'J68M69JQ4E5VEUTC')
         """)
+        connection.commit()
         # Insert dummy data into the History table
         cursor.execute("""
             Insert INTO History (user_id, start_time, duration, song) VALUES
@@ -189,9 +201,8 @@ def insert_dummy_data(DATABASE):
             ('64KZGKHPS2HIOVRCN0ERNG28', '2021-05-01 12:00:00', 210, '3DSJQ63NZNPTYRDJKI'),
             ('87A0V0LUU5794LVQF34J25FM', '2021-05-01 12:00:00', 210, '5GJLFW12REGUEHQOCL'),
             ('1A1SBQP9W8Y1J195HFVARMJR', '2021-05-01 12:00:00', 210, 'YJ0CUDKGTHXMTXU3EF'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 12:00:00', 210, '0MR4A202LKODINYHGS')
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 14:00:00', 210, '0MR4A202LKODINYHGS')
         """)
-
         connection.commit()
         print("Dummy data inserted successfully.")
     except sqlite3.IntegrityError:
