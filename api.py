@@ -1098,7 +1098,7 @@ api.add_namespace(artist_ns)
 history_ns = Namespace('histories', description="Manage user listening history")
 history_model = api.model('History', {
     'user_id': fields.String(required=True, description="The ID of the user"),
-    'start_time': fields.String(required=True, description="The start time of the listening session", dt_format='iso8601'),
+    'start_time': fields.DateTime(required=True, description="The start time of the listening session", dt_format='iso8601'),
     'duration': fields.Integer(description="The duration of the session"),
     'song': fields.String(required=True, description="The ID of the song")
 })
