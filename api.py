@@ -114,10 +114,11 @@ account_model = api.model('Account', {
     'mail': fields.String(required=True, description="The email address"),
     'full_name': fields.String(description="The full name"),
     'is_subscriber': fields.Boolean(description="Subscription status"),
+    'registration_date': fields.DateTime(description="Registration timestamp"),
     'country': fields.String(description="Country"),
     'sex': fields.String(description="Gender"),
     'language': fields.String(required=True, description="Preferred language"),
-    'birth_date': fields.String(description="Date of birth (YYYY-MM-DD)")
+    'birth_date': fields.Date(description="Date of birth (YYYY-MM-DD)")
 })
 
 @account_ns.route('/')
@@ -138,8 +139,8 @@ class AccountList(Resource):
         data = request.json
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute('''INSERT INTO Account (account_id, mail, full_name, is_subscriber, country, sex, language, birth_date)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+        cursor.execute('''INSERT INTO Account (account_id, mail, full_name, is_subscriber, registration_date ,country, sex, language, birth_date)
+                          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)''',
                        (data['account_id'], data['mail'], data['full_name'], data.get('is_subscriber', False),
                         data.get('country'), data.get('sex'), data['language'], data.get('birth_date')))
         connection.commit()
@@ -251,6 +252,42 @@ class User(Resource):
         connection.commit()
         connection.close()
         return {"message": "User deleted successfully"}, 200
+
+# a complex query to get all users with their follower counts
+@user_ns.route('/follower-counts')
+class UserFollowerCounts(Resource):
+    @jwt_required()
+    def get(self):
+        """Get all users with their follower counts"""
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        
+        query = """
+        SELECT User.user_id, User.nickname, COALESCE(f.follower_count, 0) as follower_count
+        FROM User
+        LEFT JOIN (
+            SELECT user_id_1, COUNT(*) AS follower_count
+            FROM Follower
+            GROUP BY user_id_1
+        ) AS f
+        ON User.user_id = f.user_id_1
+        """
+        
+        try:
+            results = cursor.execute(query).fetchall()
+            follower_counts = [
+                {
+                    'user_id': row['user_id'],
+                    'nickname': row['nickname'],
+                    'follower_count': row['follower_count']
+                }
+                for row in results
+            ]
+            return follower_counts, 200
+        except sqlite3.Error as e:
+            return {'message': f'Database error: {str(e)}'}, 500
+        finally:
+            connection.close()
 
 api.add_namespace(user_ns)
 
@@ -562,7 +599,7 @@ song_ns = Namespace('songs', description="Manage songs")
 song_model = api.model('Song', {
     'song_id': fields.String(required=True, description="The ID of the song"),
     'song_name': fields.String(required=True, description="The name of the song"),
-    'song_time': fields.String(required=True, description="The duration of the song"),
+    'song_time': fields.Integer(required=True, description="The duration of the song"),
     'song_image': fields.String(description="Song image encoded in base64 format"),
     'audio': fields.String(description="Audio file encoded in base64 format")
 })
@@ -803,7 +840,7 @@ group_model = api.model('Group', {
     'group_id': fields.String(required=True, description="The ID of the group"),
     'group_name': fields.String(required=True, description="The name of the group"),
     'number_of_members': fields.Integer(description="The number of members in the group"),
-    'creation_date': fields.String(description="The creation date of the group (YYYY-MM-DD)"),
+    'creation_date': fields.Date(description="The creation date of the group (YYYY-MM-DD)"),
     'group_image': fields.String(description="Group image encoded in base64 format")
 })
 
@@ -982,8 +1019,8 @@ api.add_namespace(artist_ns)
 history_ns = Namespace('histories', description="Manage user listening history")
 history_model = api.model('History', {
     'user_id': fields.String(required=True, description="The ID of the user"),
-    'start_time': fields.String(required=True, description="The start time of the listening session"),
-    'duration': fields.String(description="The duration of the session"),
+    'start_time': fields.String(required=True, description="The start time of the listening session", dt_format='iso8601'),
+    'duration': fields.Integer(description="The duration of the session"),
     'song': fields.String(required=True, description="The ID of the song")
 })
 
@@ -1003,8 +1040,8 @@ class HistoryList(Resource):
         data = request.json
         connection = get_db_connection()
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO History (user_id, start_time, duration, song) VALUES (?, ?, ?, ?)',
-                       (data['user_id'], data['start_time'], data.get('duration'), data['song']))
+        cursor.execute('INSERT INTO History (user_id, start_time, duration, song) VALUES (?, CURRENT_TIMESTAMP, ?, ?)',
+                       (data['user_id'], data.get('duration'), data['song']))
         connection.commit()
         connection.close()
         return {"message": "History record created successfully"}, 201

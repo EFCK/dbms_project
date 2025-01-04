@@ -10,9 +10,9 @@ def insert_dummy_data(DATABASE):
     try:
         # Insert dummy data into the Account table
         cursor.execute("""
-            INSERT INTO Account (account_id, mail, full_name, is_subscriber, registiration_date, country, sex, language, birth_date) VALUES
+            INSERT INTO Account (account_id, mail, full_name, is_subscriber, registration_date, country, sex, language, birth_date) VALUES
             ('41T70U4BZZQGZFNXKXNQ8ZYT', 'tuncerservice@gmail.com', 'Mahmut Tuncer', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '1961-05-05'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', 'mathematics@hotmail.com', 'Pisagor Pisagor', 0, '2021-05-01', 'Grace', 'male', 'English', '450-01-01'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', 'mathematics@hotmail.com', 'Pisagor Pisagor', 0, '2021-05-01', 'Grace', 'male', 'English', '1003-01-01'),
             ('87A0V0LUU5794LVQF34J25FM', 'krbykefecan@gmail.com', 'Efe Can kirbiyik', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '2001-12-12'),
             ('1A1SBQP9W8Y1J195HFVARMJR', 'imbatman@gmail.com', 'Bruce Wayne', 0, '2021-05-01', 'USA', 'attack helicopter', 'English', '1939-05-05'),
             ('3DSJQ63NOBPTYRDJKIM27CX6', 'random4@gmail.com', 'Random Person 3', 0, '2021-05-01', 'Canada', 'female', 'English', '1990-01-01'),
@@ -197,11 +197,11 @@ def insert_dummy_data(DATABASE):
         # Insert dummy data into the History table
         cursor.execute("""
             Insert INTO History (user_id, start_time, duration, song) VALUES
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 12:00:00', 210, '1A1SBQP9W812J195HF'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', '2021-05-01 12:00:00', 210, '3DSJQ63NZNPTYRDJKI'),
-            ('87A0V0LUU5794LVQF34J25FM', '2021-05-01 12:00:00', 210, '5GJLFW12REGUEHQOCL'),
-            ('1A1SBQP9W8Y1J195HFVARMJR', '2021-05-01 12:00:00', 210, 'YJ0CUDKGTHXMTXU3EF'),
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01 14:00:00', 210, '0MR4A202LKODINYHGS')
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01', 210, '1A1SBQP9W812J195HF'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', '2021-05-01', 210, '3DSJQ63NZNPTYRDJKI'),
+            ('87A0V0LUU5794LVQF34J25FM', '2021-05-01', 210, '5GJLFW12REGUEHQOCL'),
+            ('1A1SBQP9W8Y1J195HFVARMJR', '2021-05-01', 210, 'YJ0CUDKGTHXMTXU3EF'),
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', '2021-05-01', 210, '0MR4A202LKODINYHGS')
         """)
         connection.commit()
         print("Dummy data inserted successfully.")

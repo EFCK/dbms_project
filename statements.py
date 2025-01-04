@@ -4,7 +4,7 @@ statements = [
         mail VARCHAR(50) NOT NULL UNIQUE,
         full_name VARCHAR(50),
         is_subscriber BOOL NOT NULL DEFAULT False,
-        registiration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
         country VARCHAR(50),
         sex VARCHAR(50),
         language VARCHAR(50) NOT NULL,
