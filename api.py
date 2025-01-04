@@ -708,6 +708,40 @@ class Genre(Resource):
         connection.commit()
         connection.close()
         return {"message": "Genre deleted successfully"}, 200
+    
+@genre_ns.route('/most-listened')
+class MostListenedGenre(Resource):
+    @jwt_required()
+    def get(self):
+        """Get the most listened genre in the last month"""
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        
+        query = """
+        SELECT g.genre, COALESCE(SUM(h.duration), 0) AS total_listen_time
+        FROM History h
+        JOIN Song s ON h.song = s.song_id
+        JOIN Genre g ON s.song_id = g.song_id
+        WHERE h.start_time >= datetime('now', '-2 month')
+        AND h.start_time <= datetime('now', '-1 month')
+        GROUP BY g.genre
+        ORDER BY total_listen_time DESC
+        LIMIT 1
+        """
+        
+        try:
+            result = cursor.execute(query).fetchone()
+            if result:
+                genre_stats = {
+                    'genre': result['genre'],
+                    'total_listen_time': result['total_listen_time']
+                }
+                return genre_stats, 200
+            return {'message': 'No listening data found for the specified period'}, 404
+        except sqlite3.Error as e:
+            return {'message': f'Database error: {str(e)}'}, 500
+        finally:
+            connection.close()
 
 api.add_namespace(genre_ns)
 
@@ -774,6 +808,51 @@ class Album(Resource):
         connection.close()
         return {"message": "Album deleted successfully"}, 200
 
+# start of complex query
+@album_ns.route('/streaming-stats')
+class AlbumStreamingStats(Resource):
+    @jwt_required()
+    def get(self):
+        """Get total listening time for each album"""
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        
+        query = """
+        SELECT albums.album_name AS album_name,
+            COALESCE(SUM(stream.total_listen_time), 0) AS total_listen_time
+        FROM (
+            SELECT Album.album_id, Album.album_name, Album_Info.song_id
+            FROM Album
+            LEFT JOIN Album_Info
+            ON Album.album_id = Album_Info.album_id
+        ) AS albums
+        LEFT JOIN (
+            SELECT Song.song_id, Song.song_name,
+                SUM(History.duration) AS total_listen_time
+            FROM History
+            JOIN Song ON History.song = Song.song_id
+            GROUP BY Song.song_id
+        ) AS stream
+        ON albums.song_id = stream.song_id
+        GROUP BY albums.album_id, albums.album_name
+        ORDER BY total_listen_time DESC
+        """
+        
+        try:
+            results = cursor.execute(query).fetchall()
+            streaming_stats = [
+                {
+                    'album_name': row['album_name'],
+                    'total_listen_time': row['total_listen_time']
+                }
+                for row in results
+            ]
+            return streaming_stats, 200
+        except sqlite3.Error as e:
+            return {'message': f'Database error: {str(e)}'}, 500
+        finally:
+            connection.close()
+# end of complex query
 api.add_namespace(album_ns)
 
 # ---------------------------- Album_Info ----------------------------
