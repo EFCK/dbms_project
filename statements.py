@@ -8,7 +8,8 @@ statements = [
         country VARCHAR(50),
         sex VARCHAR(50),
         language VARCHAR(50) NOT NULL,
-        birth_date DATE
+        birth_date DATE,
+        FOREIGN KEY (account_id) REFERENCES User (user_id)
     )""",
     """CREATE TABLE IF NOT EXISTS User(
         user_id CHAR(24) PRIMARY KEY,

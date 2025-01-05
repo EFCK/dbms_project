@@ -91,20 +91,8 @@ class Login(Resource):
             return {"access_token": token}, 200
         return {"message": "Invalid credentials"}, 401
 
-# ---------------------------- Example Protected Route ----------------------------
-protected_ns = Namespace('protected', description="Protected routes for authenticated users")
-
-@protected_ns.route('/data')
-class ProtectedData(Resource):
-    @jwt_required()
-    def get(self):
-        """Example protected data endpoint"""
-        current_user = get_jwt_identity()
-        return {"message": f"Welcome, {current_user}! This is protected data."}, 200
-
 # Add authentication namespace
 api.add_namespace(auth_ns)
-api.add_namespace(protected_ns)
 
 # ---------------------------- Account ----------------------------
 
@@ -253,6 +241,22 @@ class User(Resource):
         connection.close()
         return {"message": "User deleted successfully"}, 200
 
+# get the user with nickname
+@user_ns.route('/nickname/<string:nickname>')
+class UserByNickname(Resource):
+    @jwt_required()
+    @user_ns.marshal_with(user_model)
+    def get(self, nickname):
+        """Get a user by nickname"""
+        connection = get_db_connection()
+        user = connection.execute('SELECT * FROM User WHERE nickname = ?', (nickname,)).fetchone()
+        connection.close()
+        
+        if user is None:
+            return {"message": "User not found"}, 404
+        return dict(user), 200
+
+
 # a complex query to get all users with their follower counts
 @user_ns.route('/follower-counts')
 class UserFollowerCounts(Resource):
@@ -272,7 +276,7 @@ class UserFollowerCounts(Resource):
         ) AS f
         ON User.user_id = f.user_id_2
         """
-        
+
         try:
             results = cursor.execute(query).fetchall()
             follower_counts = [
@@ -288,6 +292,7 @@ class UserFollowerCounts(Resource):
             return {'message': f'Database error: {str(e)}'}, 500
         finally:
             connection.close()
+            
 
 api.add_namespace(user_ns)
 
@@ -514,6 +519,7 @@ class PlaylistSongList(Resource):
 
 @playlist_song_ns.route('/<int:playlist_id>/songs/<string:song_id>')
 class PlaylistSong(Resource):
+    @jwt_required()
     @playlist_song_ns.marshal_with(playlist_song_model)
     def get(self, playlist_id, song_id):
         """Get a specific playlist-song relationship"""
@@ -524,6 +530,7 @@ class PlaylistSong(Resource):
             return {"message": "Playlist-Song relationship not found"}, 404
         return dict(playlist_song), 200
 
+    @jwt_required()
     def delete(self, playlist_id, song_id):
         """Delete a playlist-song relationship"""
         connection = get_db_connection()
@@ -544,6 +551,7 @@ like_model = api.model('Like', {
 
 @like_ns.route('/')
 class LikeList(Resource):
+    @jwt_required()
     @like_ns.marshal_list_with(like_model)
     def get(self):
         """Get all likes"""
@@ -552,6 +560,7 @@ class LikeList(Resource):
         connection.close()
         return [dict(like) for like in likes], 200
 
+    @jwt_required()
     @like_ns.expect(like_model)
     def post(self):
         """Create a new like"""
@@ -566,6 +575,7 @@ class LikeList(Resource):
 
 @like_ns.route('/<string:user_id>/songs/<string:song_id>')
 class Like(Resource):
+    @jwt_required()
     @like_ns.marshal_with(like_model)
     def get(self, user_id, song_id):
         """Get a specific like"""
@@ -579,6 +589,7 @@ class Like(Resource):
             return {"message": "Like not found"}, 404
         return dict(like), 200
 
+    @jwt_required()
     def delete(self, user_id, song_id):
         """Delete a like"""
         connection = get_db_connection()
@@ -606,6 +617,7 @@ song_model = api.model('Song', {
 
 @song_ns.route('/')
 class SongList(Resource):
+    @jwt_required()
     @song_ns.marshal_list_with(song_model)
     def get(self):
         """Get all songs"""
@@ -614,6 +626,7 @@ class SongList(Resource):
         connection.close()
         return [dict(song) for song in songs], 200
 
+    @jwt_required()
     @song_ns.expect(song_model)
     def post(self):
         """Create a new song"""
@@ -628,6 +641,7 @@ class SongList(Resource):
 
 @song_ns.route('/<string:song_id>')
 class Song(Resource):
+    @jwt_required()
     @song_ns.marshal_with(song_model)
     def get(self, song_id):
         """Get a song by ID"""
@@ -638,6 +652,7 @@ class Song(Resource):
             return {"message": "Song not found"}, 404
         return dict(song), 200
 
+    @jwt_required()
     @song_ns.expect(song_model)
     def put(self, song_id):
         """Update a song"""
@@ -649,6 +664,7 @@ class Song(Resource):
         connection.close()
         return {"message": "Song updated successfully"}, 200
 
+    @jwt_required()
     def delete(self, song_id):
         """Delete a song"""
         connection = get_db_connection()
@@ -656,6 +672,21 @@ class Song(Resource):
         connection.commit()
         connection.close()
         return {"message": "Song deleted successfully"}, 200
+    
+# get the song with song_name
+@song_ns.route('/name/<string:song_name>')
+class SongByName(Resource):
+    @jwt_required()
+    @song_ns.marshal_with(song_model)
+    def get(self, song_name):
+        """Get a song by name"""
+        connection = get_db_connection()
+        song = connection.execute('SELECT * FROM Song WHERE song_name = ?', (song_name,)).fetchone()
+        connection.close()
+        
+        if song is None:
+            return {"message": "Song not found"}, 404
+        return dict(song), 200
 
 api.add_namespace(song_ns)
 
@@ -669,6 +700,7 @@ genre_model = api.model('Genre', {
 
 @genre_ns.route('/')
 class GenreList(Resource):
+    @jwt_required()
     @genre_ns.marshal_list_with(genre_model)
     def get(self):
         """Get all genres"""
@@ -677,6 +709,7 @@ class GenreList(Resource):
         connection.close()
         return [dict(genre) for genre in genres], 200
 
+    @jwt_required()
     @genre_ns.expect(genre_model)
     def post(self):
         """Create a new genre"""
@@ -691,6 +724,7 @@ class GenreList(Resource):
 
 @genre_ns.route('/<string:song_id>')
 class Genre(Resource):
+    @jwt_required()
     @genre_ns.marshal_with(genre_model)
     def get(self, song_id):
         """Get a genre by song ID"""
@@ -701,6 +735,7 @@ class Genre(Resource):
             return {"message": "Genre not found"}, 404
         return dict(genre), 200
 
+    @jwt_required()
     def delete(self, song_id):
         """Delete a genre"""
         connection = get_db_connection()
@@ -708,8 +743,9 @@ class Genre(Resource):
         connection.commit()
         connection.close()
         return {"message": "Genre deleted successfully"}, 200
-    
-@genre_ns.route('/most-listened')
+
+# a complex query to get the most listened genre in the last month
+@genre_ns.route('/most-listened-last-month')
 class MostListenedGenre(Resource):
     @jwt_required()
     def get(self):
@@ -757,6 +793,7 @@ album_model = api.model('Album', {
 
 @album_ns.route('/')
 class AlbumList(Resource):
+    @jwt_required()
     @album_ns.marshal_list_with(album_model)
     def get(self):
         """Get all albums"""
@@ -765,6 +802,7 @@ class AlbumList(Resource):
         connection.close()
         return [dict(album) for album in albums], 200
 
+    @jwt_required()
     @album_ns.expect(album_model)
     def post(self):
         """Create a new album"""
@@ -779,6 +817,7 @@ class AlbumList(Resource):
 
 @album_ns.route('/<string:album_id>')
 class Album(Resource):
+    @jwt_required()
     @album_ns.marshal_with(album_model)
     def get(self, album_id):
         """Get an album by ID"""
@@ -789,6 +828,7 @@ class Album(Resource):
             return {"message": "Album not found"}, 404
         return dict(album), 200
 
+    @jwt_required()
     @album_ns.expect(album_model)
     def put(self, album_id):
         """Update an album"""
@@ -800,6 +840,7 @@ class Album(Resource):
         connection.close()
         return {"message": "Album updated successfully"}, 200
 
+    @jwt_required()
     def delete(self, album_id):
         """Delete an album"""
         connection = get_db_connection()
@@ -808,7 +849,7 @@ class Album(Resource):
         connection.close()
         return {"message": "Album deleted successfully"}, 200
 
-# start of complex query
+# a complex query to get total listening time for each album
 @album_ns.route('/streaming-stats')
 class AlbumStreamingStats(Resource):
     @jwt_required()
@@ -852,7 +893,7 @@ class AlbumStreamingStats(Resource):
             return {'message': f'Database error: {str(e)}'}, 500
         finally:
             connection.close()
-# end of complex query
+
 api.add_namespace(album_ns)
 
 # ---------------------------- Album_Info ----------------------------
@@ -865,6 +906,7 @@ album_info_model = api.model('AlbumInfo', {
 
 @album_info_ns.route('/')
 class AlbumInfoList(Resource):
+    @jwt_required()
     @album_info_ns.marshal_list_with(album_info_model)
     def get(self):
         """Get all album-song relationships"""
@@ -873,6 +915,7 @@ class AlbumInfoList(Resource):
         connection.close()
         return [dict(album_info) for album_info in album_infos], 200
 
+    @jwt_required()
     @album_info_ns.expect(album_info_model)
     def post(self):
         """Create a new album-song relationship"""
@@ -887,6 +930,7 @@ class AlbumInfoList(Resource):
 
 @album_info_ns.route('/<string:album_id>/songs/<string:song_id>')
 class AlbumInfo(Resource):
+    @jwt_required()
     @album_info_ns.marshal_with(album_info_model)
     def get(self, album_id, song_id):
         """Get a specific album-song relationship"""
@@ -898,6 +942,7 @@ class AlbumInfo(Resource):
             return {"message": "Album-Song relationship not found"}, 404
         return dict(album_info), 200
 
+    @jwt_required()
     def delete(self, album_id, song_id):
         """Delete an album-song relationship"""
         connection = get_db_connection()
@@ -925,6 +970,7 @@ group_model = api.model('Group', {
 
 @group_ns.route('/')
 class GroupList(Resource):
+    @jwt_required()
     @group_ns.marshal_list_with(group_model)
     def get(self):
         """Get all groups"""
@@ -933,6 +979,7 @@ class GroupList(Resource):
         connection.close()
         return [dict(group) for group in groups], 200
 
+    @jwt_required()
     @group_ns.expect(group_model)
     def post(self):
         """Create a new group"""
@@ -948,6 +995,7 @@ class GroupList(Resource):
 
 @group_ns.route('/<string:group_id>')
 class Group(Resource):
+    @jwt_required()
     @group_ns.marshal_with(group_model)
     def get(self, group_id):
         """Get a group by ID"""
@@ -958,6 +1006,7 @@ class Group(Resource):
             return {"message": "Group not found"}, 404
         return dict(group), 200
 
+    @jwt_required()
     @group_ns.expect(group_model)
     def put(self, group_id):
         """Update a group"""
@@ -969,6 +1018,7 @@ class Group(Resource):
         connection.close()
         return {"message": "Group updated successfully"}, 200
 
+    @jwt_required()
     def delete(self, group_id):
         """Delete a group"""
         connection = get_db_connection()
@@ -989,6 +1039,7 @@ album_group_model = api.model('AlbumGroup', {
 
 @album_group_ns.route('/')
 class AlbumGroupList(Resource):
+    @jwt_required()
     @album_group_ns.marshal_list_with(album_group_model)
     def get(self):
         """Get all album-group relationships"""
@@ -997,6 +1048,7 @@ class AlbumGroupList(Resource):
         connection.close()
         return [dict(album_group) for album_group in album_groups], 200
 
+    @jwt_required()
     @album_group_ns.expect(album_group_model)
     def post(self):
         """Create a new album-group relationship"""
@@ -1011,6 +1063,7 @@ class AlbumGroupList(Resource):
 
 @album_group_ns.route('/<string:album_id>/groups/<string:group_id>')
 class AlbumGroup(Resource):
+    @jwt_required()
     @album_group_ns.marshal_with(album_group_model)
     def get(self, album_id, group_id):
         """Get a specific album-group relationship"""
@@ -1022,6 +1075,7 @@ class AlbumGroup(Resource):
             return {"message": "Album-Group relationship not found"}, 404
         return dict(album_group), 200
 
+    @jwt_required()
     def delete(self, album_id, group_id):
         """Delete an album-group relationship"""
         connection = get_db_connection()
@@ -1046,6 +1100,7 @@ artist_model = api.model('Artist', {
 
 @artist_ns.route('/')
 class ArtistList(Resource):
+    @jwt_required()
     @artist_ns.marshal_list_with(artist_model)
     def get(self):
         """Get all artists"""
@@ -1054,6 +1109,7 @@ class ArtistList(Resource):
         connection.close()
         return [dict(artist) for artist in artists], 200
 
+    @jwt_required()
     @artist_ns.expect(artist_model)
     def post(self):
         """Create a new artist"""
@@ -1068,6 +1124,7 @@ class ArtistList(Resource):
 
 @artist_ns.route('/<string:group_id>/artists/<string:full_name>')
 class Artist(Resource):
+    @jwt_required()
     @artist_ns.marshal_with(artist_model)
     def get(self, group_id, full_name):
         """Get an artist by group ID and name"""
@@ -1079,6 +1136,7 @@ class Artist(Resource):
             return {"message": "Artist not found"}, 404
         return dict(artist), 200
 
+    @jwt_required()
     def delete(self, group_id, full_name):
         """Delete an artist"""
         connection = get_db_connection()
@@ -1105,6 +1163,7 @@ history_model = api.model('History', {
 
 @history_ns.route('/')
 class HistoryList(Resource):
+    @jwt_required()
     @history_ns.marshal_list_with(history_model)
     def get(self):
         """Get all history records"""
@@ -1113,6 +1172,7 @@ class HistoryList(Resource):
         connection.close()
         return [dict(history) for history in history_records], 200
 
+    @jwt_required()
     @history_ns.expect(history_model)
     def post(self):
         """Create a new history record"""
@@ -1127,6 +1187,7 @@ class HistoryList(Resource):
 
 @history_ns.route('/<string:user_id>/history/<string:start_time>')
 class History(Resource):
+    @jwt_required()
     @history_ns.marshal_with(history_model)
     def get(self, user_id, start_time):
         """Get a specific history record"""
@@ -1138,6 +1199,7 @@ class History(Resource):
             return {"message": "History record not found"}, 404
         return dict(history), 200
 
+    @jwt_required()
     def delete(self, user_id, start_time):
         """Delete a history record"""
         connection = get_db_connection()

@@ -8,21 +8,6 @@ def insert_dummy_data(DATABASE):
     cursor.execute("PRAGMA foreign_keys = ON;")
 
     try:
-        # Insert dummy data into the Account table
-        cursor.execute("""
-            INSERT INTO Account (account_id, mail, full_name, is_subscriber, registration_date, country, sex, language, birth_date) VALUES
-            ('41T70U4BZZQGZFNXKXNQ8ZYT', 'tuncerservice@gmail.com', 'Mahmut Tuncer', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '1961-05-05'),
-            ('64KZGKHPS2HIOVRCN0ERNG28', 'mathematics@hotmail.com', 'Pisagor Pisagor', 0, '2021-05-01', 'Grace', 'male', 'English', '1003-01-01'),
-            ('87A0V0LUU5794LVQF34J25FM', 'krbykefecan@gmail.com', 'Efe Can kirbiyik', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '2001-12-12'),
-            ('1A1SBQP9W8Y1J195HFVARMJR', 'imbatman@gmail.com', 'Bruce Wayne', 0, '2021-05-01', 'USA', 'attack helicopter', 'English', '1939-05-05'),
-            ('3DSJQ63NOBPTYRDJKIM27CX6', 'random4@gmail.com', 'Random Person 3', 0, '2021-05-01', 'Canada', 'female', 'English', '1990-01-01'),
-            ('5GJLFW72REGUEHQOCL33MS1K', 'kojimaint@gmail.com', 'Hideo Kojima', 1, '2021-05-01', 'Japan', 'alpha male', 'Japanese', '1963-08-24'),
-            ('YJ0CUDKGTHXMTXU3EPUV1IEZ', 'adcarry@hotmail.com', 'miss fortune', 1, '2021-05-01', 'Runeterra', 'female', 'English', '1996-02-21'),
-            ('0MR4A2OLLKODINYHGSLNHYI3', 'zerotwo@gmail.com', 'Zero Zero Two', 1, '2021-05-01', 'Klaxosaur', 'female', 'Japanese', '2000-02-02'),
-            ('2PIWPJSZONEFX3CV9VBOWOMI', 'rockson@gmail.com', 'Dost Kayaoğlu', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '1999-01-01'),
-            ('VT8X496EQQ56DTG0BY2FLE0W', '800kmidsal@gmail.com', 'Fatih Ucubeoğlu', 0, '2021-05-01', 'Turkey', 'minion', 'Turkish', '2015-01-01') 
-        """)
-        connection.commit()
         # Insert dummy data into the User table
         cursor.execute("""
             INSERT INTO User (user_id, nickname, favorite_genre, user_image) VALUES
@@ -36,6 +21,22 @@ def insert_dummy_data(DATABASE):
             ('0MR4A2OLLKODINYHGSLNHYI3', 'franxx', 'Pop', NULL),
             ('2PIWPJSZONEFX3CV9VBOWOMI', 'rockson', 'Jazz', NULL),
             ('VT8X496EQQ56DTG0BY2FLE0W', '800kmid', 'Rap', NULL)
+        """)
+        connection.commit()
+        
+        # Insert dummy data into the Account table
+        cursor.execute("""
+            INSERT INTO Account (account_id, mail, full_name, is_subscriber, registration_date, country, sex, language, birth_date) VALUES
+            ('41T70U4BZZQGZFNXKXNQ8ZYT', 'tuncerservice@gmail.com', 'Mahmut Tuncer', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '1961-05-05'),
+            ('64KZGKHPS2HIOVRCN0ERNG28', 'mathematics@hotmail.com', 'Pisagor Pisagor', 0, '2021-05-01', 'Grace', 'male', 'English', '1003-01-01'),
+            ('87A0V0LUU5794LVQF34J25FM', 'krbykefecan@gmail.com', 'Efe Can kirbiyik', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '2001-12-12'),
+            ('1A1SBQP9W8Y1J195HFVARMJR', 'imbatman@gmail.com', 'Bruce Wayne', 0, '2021-05-01', 'USA', 'attack helicopter', 'English', '1939-05-05'),
+            ('3DSJQ63NOBPTYRDJKIM27CX6', 'random4@gmail.com', 'Random Person 3', 0, '2021-05-01', 'Canada', 'female', 'English', '1990-01-01'),
+            ('5GJLFW72REGUEHQOCL33MS1K', 'kojimaint@gmail.com', 'Hideo Kojima', 1, '2021-05-01', 'Japan', 'alpha male', 'Japanese', '1963-08-24'),
+            ('YJ0CUDKGTHXMTXU3EPUV1IEZ', 'adcarry@hotmail.com', 'miss fortune', 1, '2021-05-01', 'Runeterra', 'female', 'English', '1996-02-21'),
+            ('0MR4A2OLLKODINYHGSLNHYI3', 'zerotwo@gmail.com', 'Zero Zero Two', 1, '2021-05-01', 'Klaxosaur', 'female', 'Japanese', '2000-02-02'),
+            ('2PIWPJSZONEFX3CV9VBOWOMI', 'rockson@gmail.com', 'Dost Kayaoğlu', 1, '2021-05-01', 'Turkey', 'male', 'Turkish', '1999-01-01'),
+            ('VT8X496EQQ56DTG0BY2FLE0W', '800kmidsal@gmail.com', 'Fatih Ucubeoğlu', 0, '2021-05-01', 'Turkey', 'minion', 'Turkish', '2015-01-01') 
         """)
         connection.commit()
         # Insert dummy data into the Fallower table
