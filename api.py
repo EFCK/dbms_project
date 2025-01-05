@@ -266,11 +266,11 @@ class UserFollowerCounts(Resource):
         SELECT User.user_id, User.nickname, COALESCE(f.follower_count, 0) as follower_count
         FROM User
         LEFT JOIN (
-            SELECT user_id_1, COUNT(*) AS follower_count
+            SELECT user_id_2, COUNT(*) AS follower_count
             FROM Follower
-            GROUP BY user_id_1
+            GROUP BY user_id_2
         ) AS f
-        ON User.user_id = f.user_id_1
+        ON User.user_id = f.user_id_2
         """
         
         try:
