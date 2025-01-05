@@ -249,12 +249,12 @@ class UserByNickname(Resource):
     def get(self, nickname):
         """Get a user by nickname"""
         connection = get_db_connection()
-        user = connection.execute('SELECT * FROM User WHERE nickname = ?', (nickname,)).fetchone()
+        users = connection.execute('SELECT * FROM User WHERE nickname = ?', (nickname,)).fetchall()
         connection.close()
         
-        if user is None:
+        if users is None:
             return {"message": "User not found"}, 404
-        return dict(user), 200
+        return [dict(user) for user in users], 200
 
 
 # a complex query to get all users with their follower counts
@@ -681,12 +681,12 @@ class SongByName(Resource):
     def get(self, song_name):
         """Get a song by name"""
         connection = get_db_connection()
-        song = connection.execute('SELECT * FROM Song WHERE song_name = ?', (song_name,)).fetchone()
+        songs = connection.execute('SELECT * FROM Song WHERE song_name = ?', (song_name,)).fetchall()
         connection.close()
         
-        if song is None:
+        if songs is None:
             return {"message": "Song not found"}, 404
-        return dict(song), 200
+        return [dict(song) for song in songs], 200
 
 api.add_namespace(song_ns)
 
