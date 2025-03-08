@@ -690,23 +690,58 @@ class followerList(Resource):
     @follower_ns.marshal_list_with(follower_model)
     def get(self):
         """Get all follower relationships"""
-        connection = get_db_connection()
-        followers = connection.execute('SELECT * FROM Follower').fetchall()
-        connection.close()
-        return [dict(follower) for follower in followers]
+        try:
+            with DBConnection() as connection:
+                followers = connection.execute('SELECT * FROM Follower').fetchall()
+                return [dict(follower) for follower in followers]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     @follower_ns.expect(follower_model)
     def post(self):
         """Create a new follower relationship"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)',
-                       (data['user_id_1'], data['user_id_2']))
-        connection.commit()
-        connection.close()
-        return {"message": "follower relationship created successfully"}, 201
+        
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Check if the follower user exists
+                follower = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (data['user_id_1'],)).fetchone()
+                if not follower:
+                    return {"message": "Follower user not found"}, 404
+                
+                # Check if the followed user exists
+                followed = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (data['user_id_2'],)).fetchone()
+                if not followed:
+                    return {"message": "Followed user not found"}, 404
+                
+                # Check if the relationship already exists
+                existing = cursor.execute(
+                    'SELECT 1 FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
+                    (data['user_id_1'], data['user_id_2'])
+                ).fetchone()
+                
+                if existing:
+                    return {"message": "This follower relationship already exists"}, 409
+                
+                cursor.execute(
+                    'INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)',
+                    (data['user_id_1'], data['user_id_2'])
+                )
+                
+            return {"message": "Follower relationship created successfully"}, 201
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @follower_ns.route('/<string:user_id_1>/followers/<string:user_id_2>')
 class follower(Resource):
@@ -714,28 +749,50 @@ class follower(Resource):
     @follower_ns.marshal_with(follower_model)
     def get(self, user_id_1, user_id_2):
         """Get a specific follower relationship"""
-        connection = get_db_connection()
-        follower = connection.execute(
-            'SELECT * FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
-            (user_id_1, user_id_2)
-        ).fetchone()
-        connection.close()
-        if follower is None:
-            return {"message": "follower relationship not found"}, 404
-        return dict(follower)
+        try:
+            with DBConnection() as connection:
+                follower = connection.execute(
+                    'SELECT * FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?',
+                    (user_id_1, user_id_2)
+                ).fetchone()
+                
+                if follower is None:
+                    return {"message": "Follower relationship not found"}, 404
+                return dict(follower)
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     def delete(self, user_id_1, user_id_2):
         """Delete a follower relationship"""
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('DELETE FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
-        if cursor.rowcount == 0:
-            connection.close()
-            return {"message": "follower relationship not found"}, 404
-        connection.commit()
-        connection.close()
-        return {"message": "follower relationship deleted successfully"}, 200
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Check if both users exist before attempting to delete the relationship
+                follower = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (user_id_1,)).fetchone()
+                if not follower:
+                    return {"message": "Follower user not found"}, 404
+                
+                followed = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (user_id_2,)).fetchone()
+                if not followed:
+                    return {"message": "Followed user not found"}, 404
+                
+                cursor.execute('DELETE FROM Follower WHERE user_id_1 = ? AND user_id_2 = ?', (user_id_1, user_id_2))
+                if cursor.rowcount == 0:
+                    return {"message": "Follower relationship not found"}, 404
+                
+                return {"message": "Follower relationship deleted successfully"}, 200
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 api.add_namespace(follower_ns)
 
@@ -872,39 +929,59 @@ class PlaylistUserList(Resource):
     @playlist_user_ns.marshal_list_with(playlist_user_model)
     def get(self):
         """Get all playlist-user relationships"""
-        connection = get_db_connection()
-        playlist_users = connection.execute('SELECT * FROM Playlist_User').fetchall()
-        connection.close()
-        return [dict(playlist_user) for playlist_user in playlist_users]
+        try:
+            with DBConnection() as connection:
+                playlist_users = connection.execute('SELECT * FROM Playlist_User').fetchall()
+                return [dict(playlist_user) for playlist_user in playlist_users]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     @playlist_user_ns.expect(playlist_user_model)
     def post(self):
         """Create a new playlist-user relationship"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
         
-        # First, verify the playlist exists
-        playlist = cursor.execute('SELECT playlist_id FROM Playlist WHERE playlist_id = ?', 
-                                  (data['playlist_id'],)).fetchone()
-        if not playlist:
-            connection.close()
-            return {"message": "Cannot add user to a playlist that doesn't exist"}, 404
-            
-        # Then verify the user exists
-        user = cursor.execute('SELECT user_id FROM User WHERE user_id = ?', 
-                              (data['user_id'],)).fetchone()
-        if not user:
-            connection.close()
-            return {"message": "Cannot add non-existent user to playlist"}, 404
-        
-        # If both exist, create the relationship
-        cursor.execute('INSERT INTO Playlist_User (user_id, playlist_id) VALUES (?, ?)',
-                       (data['user_id'], data['playlist_id']))
-        connection.commit()
-        connection.close()
-        return {"message": "User added to playlist successfully"}, 201
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # First, verify the playlist exists
+                playlist = cursor.execute('SELECT playlist_id FROM Playlist WHERE playlist_id = ?', 
+                                        (data['playlist_id'],)).fetchone()
+                if not playlist:
+                    return {"message": "Cannot add user to a playlist that doesn't exist"}, 404
+                    
+                # Then verify the user exists
+                user = cursor.execute('SELECT user_id FROM User WHERE user_id = ?', 
+                                    (data['user_id'],)).fetchone()
+                if not user:
+                    return {"message": "Cannot add non-existent user to playlist"}, 404
+                
+                # Check if the relationship already exists
+                existing = cursor.execute(
+                    'SELECT 1 FROM Playlist_User WHERE user_id = ? AND playlist_id = ?',
+                    (data['user_id'], data['playlist_id'])
+                ).fetchone()
+                
+                if existing:
+                    return {"message": "This user is already associated with this playlist"}, 409
+                
+                # If both exist, create the relationship
+                cursor.execute('INSERT INTO Playlist_User (user_id, playlist_id) VALUES (?, ?)',
+                            (data['user_id'], data['playlist_id']))
+                
+                return {"message": "User added to playlist successfully"}, 201
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @playlist_user_ns.route('/<string:user_id>/<string:playlist_id>')
 class PlaylistUser(Resource):
@@ -912,26 +989,59 @@ class PlaylistUser(Resource):
     @playlist_user_ns.marshal_with(playlist_user_model)
     def get(self, user_id, playlist_id):
         """Get a specific playlist-user relationship"""
-        connection = get_db_connection()
-        playlist_user = connection.execute('SELECT * FROM Playlist_User WHERE user_id = ? AND playlist_id = ?', 
-                                          (user_id, playlist_id)).fetchone()
-        connection.close()
-        if playlist_user is None:
-            return {"message": "This user isn't associated with that playlist"}, 404
-        return dict(playlist_user)
+        try:
+            with DBConnection() as connection:
+                playlist_user = connection.execute('SELECT * FROM Playlist_User WHERE user_id = ? AND playlist_id = ?', 
+                                                (user_id, playlist_id)).fetchone()
+                
+                if playlist_user is None:
+                    return {"message": "This user isn't associated with that playlist"}, 404
+                return dict(playlist_user)
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     def delete(self, user_id, playlist_id):
         """Remove a user from a playlist"""
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('DELETE FROM Playlist_User WHERE user_id = ? AND playlist_id = ?', (user_id, playlist_id))
-        if cursor.rowcount == 0:
-            connection.close()
-            return {"message": "This user isn't associated with that playlist"}, 404
-        connection.commit()
-        connection.close()
-        return {"message": "User removed from playlist successfully"}, 200
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Verify the playlist exists
+                playlist = cursor.execute('SELECT playlist_id FROM Playlist WHERE playlist_id = ?', 
+                                        (playlist_id,)).fetchone()
+                if not playlist:
+                    return {"message": "Playlist not found"}, 404
+                    
+                # Verify the user exists
+                user = cursor.execute('SELECT user_id FROM User WHERE user_id = ?', 
+                                    (user_id,)).fetchone()
+                if not user:
+                    return {"message": "User not found"}, 404
+                
+                # Verify the relationship exists before deletion
+                relationship = cursor.execute(
+                    'SELECT 1 FROM Playlist_User WHERE user_id = ? AND playlist_id = ?',
+                    (user_id, playlist_id)
+                ).fetchone()
+                
+                if not relationship:
+                    return {"message": "This user isn't associated with that playlist"}, 404
+                
+                cursor.execute('DELETE FROM Playlist_User WHERE user_id = ? AND playlist_id = ?', 
+                            (user_id, playlist_id))
+                
+                return {"message": "User removed from playlist successfully"}, 200
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 api.add_namespace(playlist_user_ns)
 
