@@ -277,7 +277,7 @@ class AccountList(Resource):
         connection = get_db_connection()
         accounts = connection.execute('SELECT * FROM Account').fetchall()
         connection.close()
-        return [dict(account) for account in accounts], 200
+        return [dict(account) for account in accounts]
 
     @jwt_required()
     @account_ns.expect(account_model)
@@ -335,7 +335,7 @@ class Account(Resource):
         connection.close()
         if account is None:
             return {"message": "Account not found"}, 404
-        return dict(account), 200
+        return dict(account)
 
     @jwt_required()
     @account_ns.expect(account_model)
@@ -421,7 +421,7 @@ class UserList(Resource):
         connection = get_db_connection()
         users = connection.execute('SELECT * FROM User').fetchall()
         connection.close()
-        return [dict(user) for user in users], 200
+        return [dict(user) for user in users]
 
     @jwt_required()
     @user_ns.expect(user_model)
@@ -487,7 +487,7 @@ class User(Resource):
         connection.close()
         if user is None:
             return {"message": "User not found"}, 404
-        return dict(user), 200
+        return dict(user)
 
     @jwt_required()
     @user_ns.expect(user_model)
@@ -520,10 +520,9 @@ class UserByNickname(Resource):
         connection = get_db_connection()
         users = connection.execute('SELECT * FROM User WHERE nickname = ?', (nickname,)).fetchall()
         connection.close()
-        
-        if users is None:
+        if not users:
             return {"message": "User not found"}, 404
-        return [dict(user) for user in users], 200
+        return [dict(user) for user in users]
 
 
 # a complex query to get all users with their follower counts
@@ -582,7 +581,7 @@ class followerList(Resource):
         connection = get_db_connection()
         followers = connection.execute('SELECT * FROM Follower').fetchall()
         connection.close()
-        return [dict(follower) for follower in followers], 200
+        return [dict(follower) for follower in followers]
 
     @jwt_required()
     @follower_ns.expect(follower_model)
@@ -611,7 +610,7 @@ class follower(Resource):
         connection.close()
         if follower is None:
             return {"message": "follower relationship not found"}, 404
-        return dict(follower), 200
+        return dict(follower)
 
     @jwt_required()
     def delete(self, user_id_1, user_id_2):
@@ -647,7 +646,7 @@ class PlaylistList(Resource):
         connection = get_db_connection()
         playlists = connection.execute('SELECT * FROM Playlist').fetchall()
         connection.close()
-        return [dict(playlist) for playlist in playlists], 200
+        return [dict(playlist) for playlist in playlists]
 
     @jwt_required()
     @playlist_ns.expect(playlist_model)
@@ -693,7 +692,7 @@ class Playlist(Resource):
         connection.close()
         if playlist is None:
             return {"message": "Playlist not found"}, 404
-        return dict(playlist), 200
+        return dict(playlist)
 
     @jwt_required()
     @playlist_ns.expect(playlist_model)
@@ -764,7 +763,7 @@ class PlaylistUserList(Resource):
         connection = get_db_connection()
         playlist_users = connection.execute('SELECT * FROM Playlist_User').fetchall()
         connection.close()
-        return [dict(playlist_user) for playlist_user in playlist_users], 200
+        return [dict(playlist_user) for playlist_user in playlist_users]
 
     @jwt_required()
     @playlist_user_ns.expect(playlist_user_model)
@@ -807,7 +806,7 @@ class PlaylistUser(Resource):
         connection.close()
         if playlist_user is None:
             return {"message": "This user isn't associated with that playlist"}, 404
-        return dict(playlist_user), 200
+        return dict(playlist_user)
 
     @jwt_required()
     def delete(self, user_id, playlist_id):
@@ -841,7 +840,7 @@ class PlaylistSongList(Resource):
         connection = get_db_connection()
         playlist_songs = connection.execute('SELECT * FROM Playlist_Song').fetchall()
         connection.close()
-        return [dict(playlist_song) for playlist_song in playlist_songs], 200
+        return [dict(playlist_song) for playlist_song in playlist_songs]
 
     @jwt_required()
     @playlist_song_ns.expect(playlist_song_model)
@@ -884,14 +883,14 @@ class PlaylistSong(Resource):
     @jwt_required()
     @playlist_song_ns.marshal_with(playlist_song_model)
     def get(self, playlist_id, song_id):
-        """Check if a specific song is in a playlist"""
+        """Get a specific playlist-song relationship"""
         connection = get_db_connection()
         playlist_song = connection.execute('SELECT * FROM Playlist_Song WHERE playlist_id = ? AND song_id = ?', 
                                           (playlist_id, song_id)).fetchone()
         connection.close()
         if playlist_song is None:
-            return {"message": "This song isn't in that playlist"}, 404
-        return dict(playlist_song), 200
+            return {"message": "Song not found in playlist"}, 404
+        return dict(playlist_song)
 
     @jwt_required()
     def delete(self, playlist_id, song_id):
@@ -936,7 +935,7 @@ class LikeList(Resource):
         connection = get_db_connection()
         likes = connection.execute('SELECT * FROM UserLikes').fetchall()
         connection.close()
-        return [dict(like) for like in likes], 200
+        return [dict(like) for like in likes]
 
     @jwt_required()
     @like_ns.expect(like_model)
@@ -965,7 +964,7 @@ class Like(Resource):
         connection.close()
         if like is None:
             return {"message": "Like not found"}, 404
-        return dict(like), 200
+        return dict(like)
 
     @jwt_required()
     def delete(self, user_id, song_id):
@@ -1014,7 +1013,7 @@ class SongList(Resource):
         connection = get_db_connection()
         songs = connection.execute('SELECT * FROM Song').fetchall()
         connection.close()
-        return [dict(song) for song in songs], 200
+        return [dict(song) for song in songs]
 
     @jwt_required()
     @song_ns.expect(song_model)
@@ -1073,7 +1072,7 @@ class Song(Resource):
         connection.close()
         if song is None:
             return {"message": "Song not found"}, 404
-        return dict(song), 200
+        return dict(song)
 
     @jwt_required()
     @song_ns.expect(song_model)
@@ -1104,12 +1103,11 @@ class SongByName(Resource):
     def get(self, song_name):
         """Get a song by name"""
         connection = get_db_connection()
-        songs = connection.execute('SELECT * FROM Song WHERE song_name = ?', (song_name,)).fetchall()
+        songs = connection.execute('SELECT * FROM Song WHERE song_name LIKE ?', (f'%{song_name}%',)).fetchall()
         connection.close()
-        
-        if songs is None:
-            return {"message": "Song not found"}, 404
-        return [dict(song) for song in songs], 200
+        if not songs:
+            return {"message": "No songs found with that name"}, 404
+        return [dict(song) for song in songs]
 
 api.add_namespace(song_ns)
 
@@ -1130,7 +1128,7 @@ class GenreList(Resource):
         connection = get_db_connection()
         genres = connection.execute('SELECT * FROM Genre').fetchall()
         connection.close()
-        return [dict(genre) for genre in genres], 200
+        return [dict(genre) for genre in genres]
 
     @jwt_required()
     @genre_ns.expect(genre_model)
@@ -1156,7 +1154,7 @@ class Genre(Resource):
         connection.close()
         if genre is None:
             return {"message": "Genre not found"}, 404
-        return dict(genre), 200
+        return dict(genre)
 
     @jwt_required()
     def delete(self, song_id):
@@ -1236,7 +1234,7 @@ class AlbumList(Resource):
         connection = get_db_connection()
         albums = connection.execute('SELECT * FROM Album').fetchall()
         connection.close()
-        return [dict(album) for album in albums], 200
+        return [dict(album) for album in albums]
 
     @jwt_required()
     @album_ns.expect(album_model)
@@ -1287,7 +1285,7 @@ class Album(Resource):
         connection.close()
         if album is None:
             return {"message": "Album not found"}, 404
-        return dict(album), 200
+        return dict(album)
 
     @jwt_required()
     @album_ns.expect(album_model)
@@ -1442,7 +1440,7 @@ class AlbumInfoList(Resource):
         connection = get_db_connection()
         album_infos = connection.execute('SELECT * FROM Album_Info').fetchall()
         connection.close()
-        return [dict(album_info) for album_info in album_infos], 200
+        return [dict(album_info) for album_info in album_infos]
 
     @jwt_required()
     @album_info_ns.expect(album_info_model)
@@ -1518,7 +1516,7 @@ class AlbumInfo(Resource):
         connection.close()
         if album_info is None:
             return {"message": "This song isn't in that album"}, 404
-        return dict(album_info), 200
+        return dict(album_info)
 
     @jwt_required()
     @album_info_ns.doc(responses={
@@ -1574,7 +1572,7 @@ class GroupList(Resource):
         connection = get_db_connection()
         groups = connection.execute('SELECT * FROM MusicGroup').fetchall()
         connection.close()
-        return [dict(group) for group in groups], 200
+        return [dict(group) for group in groups]
 
     @jwt_required()
     @group_ns.expect(group_model)
@@ -1605,7 +1603,7 @@ class Group(Resource):
         connection.close()
         if group is None:
             return {"message": "Group not found"}, 404
-        return dict(group), 200
+        return dict(group)
 
     @jwt_required()
     @group_ns.expect(group_model)
@@ -1647,7 +1645,7 @@ class AlbumGroupList(Resource):
         connection = get_db_connection()
         album_groups = connection.execute('SELECT * FROM Album_Group').fetchall()
         connection.close()
-        return [dict(album_group) for album_group in album_groups], 200
+        return [dict(album_group) for album_group in album_groups]
 
     @jwt_required()
     @album_group_ns.expect(album_group_model)
@@ -1674,7 +1672,7 @@ class AlbumGroup(Resource):
         connection.close()
         if album_group is None:
             return {"message": "Album-Group relationship not found"}, 404
-        return dict(album_group), 200
+        return dict(album_group)
 
     @jwt_required()
     def delete(self, album_id, group_id):
@@ -1708,7 +1706,7 @@ class ArtistList(Resource):
         connection = get_db_connection()
         artists = connection.execute('SELECT * FROM Artist').fetchall()
         connection.close()
-        return [dict(artist) for artist in artists], 200
+        return [dict(artist) for artist in artists]
 
     @jwt_required()
     @artist_ns.expect(artist_model)
@@ -1756,7 +1754,7 @@ class ArtistByGroup(Resource):
             
             if artist is None:
                 return {"message": "Artist not found"}, 404
-            return dict(artist), 200
+            return dict(artist)
         else:
             # If no full_name, get all artists in the group
             artists = connection.execute(
@@ -1764,7 +1762,7 @@ class ArtistByGroup(Resource):
                 (group_id,)
             ).fetchall()
             connection.close()
-            return [dict(artist) for artist in artists], 200
+            return [dict(artist) for artist in artists]
             
     @jwt_required()
     def delete(self, group_id):
@@ -1818,7 +1816,7 @@ class HistoryList(Resource):
         connection = get_db_connection()
         history_records = connection.execute('SELECT * FROM History').fetchall()
         connection.close()
-        return [dict(history) for history in history_records], 200
+        return [dict(history) for history in history_records]
 
     @jwt_required()
     @history_ns.expect(history_model)
@@ -1851,8 +1849,14 @@ class HistoryList(Resource):
             connection.close()
             return {"message": "Cannot log history for non-existent song"}, 404
             
-        cursor.execute('INSERT INTO History (user_id, start_time, duration, song_id) VALUES (?, CURRENT_TIMESTAMP, ?, ?)',
-                       (data['user_id'], data.get('duration'), data['song_id']))
+        # Use explicit start_time if provided, otherwise use CURRENT_TIMESTAMP
+        if 'start_time' in data:
+            cursor.execute('INSERT INTO History (user_id, start_time, duration, song_id) VALUES (?, ?, ?, ?)',
+                          (data['user_id'], data['start_time'], data['duration'], data['song_id']))
+        else:
+            cursor.execute('INSERT INTO History (user_id, duration, song_id) VALUES (?, ?, ?)',
+                          (data['user_id'], data['duration'], data['song_id']))
+                          
         connection.commit()
         connection.close()
         return {"message": "Listening session recorded!"}, 201
@@ -1895,7 +1899,7 @@ class UserHistory(Resource):
             
             if history is None:
                 return {"message": "Couldn't find that listening session"}, 404
-            return dict(history), 200
+            return dict(history)
         else:
             # If no start_time, get all history for the user
             history_records = connection.execute(
@@ -1903,7 +1907,7 @@ class UserHistory(Resource):
                 (user_id,)
             ).fetchall()
             connection.close()
-            return [dict(history) for history in history_records], 200
+            return [dict(record) for record in history_records]
 
     @jwt_required()
     @history_ns.doc(responses={
