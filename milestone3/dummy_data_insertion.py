@@ -1,6 +1,7 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
 import uuid
+import random
 
 def insert_dummy_data(DATABASE):
     connection = sqlite3.connect(DATABASE)
@@ -102,7 +103,7 @@ def insert_dummy_data(DATABASE):
                 # Insert into Account table with proper user_id and required fields
                 print(f"Inserting account for {nickname} with user_id {user_id}")
                 cursor.execute("""
-                    INSERT INTO Account (user_id, mail, password_hash, password_salt, full_name, is_subscriber, 
+                    INSERT INTO Account (account_id, mail, password_hash, password_salt, full_name, is_subscriber, 
                                        registration_date, country, sex, language, birth_date, last_login) VALUES
                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
@@ -197,15 +198,46 @@ def insert_dummy_data(DATABASE):
             except sqlite3.Error as e:
                 print(f"Error inserting user likes: {str(e)}")
             
-        # Add song genres
-        if song_id_map:
-            print("Inserting genres...")
-            try:
-                insert_genres(cursor, song_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting genres: {str(e)}")
-            
+        # Insert random genres into GenreFields
+        print("Inserting genres into GenreFields...")
+        genres = [
+            'Rock', 'Pop', 'Jazz', 'Classical', 'Hip Hop', 'Rap', 'Electronic', 'Indie', 'Folk', 'Metal',
+            'Blues', 'Reggae', 'Country', 'Soul', 'Punk', 'Disco', 'Funk', 'R&B', 'Latin', 'Alternative'
+        ]
+
+        # Use executemany for bulk insertion
+        cursor.executemany(
+            "INSERT INTO GenreFields (genre_name) VALUES (?)",
+            [(genre,) for genre in genres]
+        )
+        connection.commit()
+
+        # Retrieve genre_ids for later use
+        print("Retrieving genre IDs...")
+        cursor.execute("SELECT genre_id, genre_name FROM GenreFields")
+        genre_data = cursor.fetchall()
+        genre_id_map = {name: g_id for g_id, name in genre_data}
+
+        # Generate random entries for the Genre table
+        print("Inserting entries into Genre table...")
+
+        # Ensure song_id_map and genre_id_map are populated
+        if song_id_map and genre_id_map:
+            genre_entries = []
+            for _ in range(30):
+                song_name = random.choice(list(song_id_map.keys()))
+                genre_name = random.choice(list(genre_id_map.keys()))
+                genre_entries.append((song_id_map[song_name], genre_id_map[genre_name]))
+
+            # Use executemany for bulk insertion
+            cursor.executemany(
+                "INSERT INTO Genre (song_id, genre_id) VALUES (?, ?)",
+                genre_entries
+            )
+            connection.commit()
+        else:
+            print("Error: song_id_map or genre_id_map is empty.")
+        
         # Add albums
         print("Inserting albums...")
         try:
@@ -255,7 +287,7 @@ def insert_dummy_data(DATABASE):
         if group_id_map:
             print("Inserting artists...")
             try:
-                insert_artists(cursor, group_id_map)
+                insert_artists(cursor)
                 connection.commit()
             except sqlite3.Error as e:
                 print(f"Error inserting artists: {str(e)}")
@@ -647,78 +679,6 @@ def insert_user_likes(cursor, user_id_map, song_id_map):
         like_data
     )
 
-def insert_genres(cursor, song_id_map):
-    # Define unique genres
-    unique_genres = [
-        'Rock', 'Pop', 'Jazz', 'Classical', 'Rap', 'Folk', 'Indie', 'Electronic', 
-        'Metal', 'Country', 'R&B', 'Blues', 'Reggae', 'Hip Hop', 'Alternative'
-    ]
-    
-    # First insert the unique genres and build a mapping
-    genre_id_map = {}
-    
-    for genre_name in unique_genres:
-        # Generate a UUID for each genre
-        genre_id = str(uuid.uuid4())
-        
-        # Insert the genre
-        cursor.execute(
-            "INSERT INTO Genre (genre_id, genre_name) VALUES (?, ?)",
-            (genre_id, genre_name)
-        )
-        
-        # Store the genre_id in the map
-        genre_id_map[genre_name] = genre_id
-    
-    # Define song-genre relationships
-    song_genres = [
-        ('Stairway to Heaven', 'Rock'),
-        ('Bohemian Rhapsody', 'Rock'),
-        ('Bohemian Rhapsody', 'Pop'),  # Example of multiple genres for one song
-        ('Metal Gear Solid 3 Theme', 'Jazz'),
-        ('Metal Gear Solid 3 Theme', 'Alternative'),  # Multiple genres
-        ('Bilgewater', 'Rock'),
-        ('Kiss of Death', 'Pop'),
-        ('Under the tree', 'Jazz'),
-        ('800kmid', 'Rap'),
-        ('Tunceredits', 'Pop'),
-        ('345math', 'Rock'),
-        ('Take Me Out', 'Rock'),
-        ('All Along the Watchtower', 'Rock'),
-        ('Sweet Child O Mine', 'Rock'),
-        ('Nothing Else Matters', 'Rock'),
-        ('Nothing Else Matters', 'Metal'),  # Multiple genres
-        ('Piano Sonata No. 14', 'Classical'),
-        ('99 Problems', 'Rap'),
-        ('99 Problems', 'Hip Hop'),  # Multiple genres
-        ('Lose Yourself', 'Rap'),
-        ('Harvest Moon', 'Folk'),
-        ('Love Will Tear Us Apart', 'Indie'),
-        ('One More Time', 'Electronic'),
-        ('Kashmir', 'Rock'),
-        ('Imagine', 'Pop'),
-        ('Imagine', 'Folk'),  # Multiple genres
-        ('Hotel California', 'Rock'),
-        ('Thriller', 'Pop'),
-        ('Smells Like Teen Spirit', 'Rock'),
-        ('Smells Like Teen Spirit', 'Alternative'),  # Multiple genres
-        ('Billie Jean', 'Pop'),
-        ('Billie Jean', 'R&B')  # Multiple genres
-    ]
-    
-    # Prepare data for the SongGenre junction table
-    song_genre_data = []
-    
-    for song_name, genre_name in song_genres:
-        if song_name in song_id_map and genre_name in genre_id_map:
-            song_genre_data.append((song_id_map[song_name], genre_id_map[genre_name]))
-    
-    # Use executemany for bulk insertion into the junction table
-    cursor.executemany(
-        "INSERT INTO SongGenre (song_id, genre_id) VALUES (?, ?)",
-        song_genre_data
-    )
-
 def insert_albums(cursor):
     albums = [
         ('This Fire', 'An amazing album', '2020-01-01'),
@@ -871,58 +831,20 @@ def insert_music_groups(cursor):
         new_groups
     )
 
-def insert_artists(cursor, group_id_map):
+def insert_artists(cursor):
     artists = [
-        ('The Beatles', 'John Lennon'),
-        ('The Beatles', 'Paul McCartney'),
-        ('The Beatles', 'George Harrison'),
-        ('The Beatles', 'Ringo Starr'),
-        ('Queen', 'Freddie Mercury'),
-        ('Queen', 'Brian May'),
-        ('Queen', 'Roger Taylor'),
-        ('Queen', 'John Deacon'),
-        ('Pink Floyd', 'David Gilmour'),
-        ('Pink Floyd', 'Nick Mason'),
-        ('Pink Floyd', 'Richard Wright'),
-        ('Metallica', 'James Hetfield'),
-        ('Metallica', 'Lars Ulrich'),
-        ('Metallica', 'Kirk Hammett'),
-        ('Metallica', 'Robert Trujillo'),
-        ('Led Zeppelin', 'Robert Plant'),
-        ('Led Zeppelin', 'Jimmy Page'),
-        ('Led Zeppelin', 'John Paul Jones'),
-        ('Led Zeppelin', 'John Bonham'),
-        ('Nirvana', 'Kurt Cobain'),
-        ('Nirvana', 'Dave Grohl'),
-        ('Nirvana', 'Krist Novoselic'),
-        ('AC/DC', 'Angus Young'),
-        ('Eagles', 'Don Henley'),
-        ('Fleetwood Mac', 'Stevie Nicks')
+        ('John Lennon', 'UK', 'Guitar'),
+        ('Paul McCartney', 'UK', 'Bass'),
+        ('George Harrison', 'UK', 'Guitar'),
+        ('Ringo Starr', 'UK', 'Drums'),
+        ('Freddie Mercury', 'UK', 'Vocals'),
+        ('Brian May', 'UK', 'Guitar'),
+        ('Roger Taylor', 'UK', 'Drums'),
+        ('John Deacon', 'UK', 'Bass')
     ]
-    
-    # Check for existing artists first to avoid unique constraint error
-    cursor.execute("SELECT g.group_name, a.full_name FROM Artist a JOIN MusicGroup g ON a.group_id = g.group_id")
-    existing_artists = {(row[0], row[1]) for row in cursor.fetchall()}
-    
-    # Filter the artists to keep only those that don't exist yet
-    new_artists = [(group, artist) for group, artist in artists 
-                  if (group, artist) not in existing_artists and group in group_id_map]
-    
-    if not new_artists:
-        print("No new artists to insert - all artists already exist")
-        return
-    
-    print(f"Inserting {len(new_artists)} new artists")
-    if new_artists:
-        print(f"Sample artist: {new_artists[0]}")
-    
-    # Prepare data for executemany
-    artist_data = [(group_id_map[group], artist) for group, artist in new_artists]
-    
-    # Use executemany for bulk insertion
     cursor.executemany(
-        "INSERT INTO Artist (group_id, full_name) VALUES (?, ?)",
-        artist_data
+        "INSERT INTO Artist (full_name, origin_country, instrument) VALUES (?, ?, ?)",
+        artists
     )
 
 def insert_album_groups(cursor, album_id_map, group_id_map):

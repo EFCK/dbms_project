@@ -6,19 +6,9 @@ uuid_default = (
 )
 
 statements = [
-    # User table and its index
-    f"""CREATE TABLE IF NOT EXISTS User (
-        user_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
-        nickname VARCHAR(50) NOT NULL CHECK (length(nickname) >= 3),
-        favorite_genre VARCHAR(50),
-        user_image BLOB,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )""",
-    """CREATE INDEX IF NOT EXISTS idx_user_nickname ON User(nickname)""",
-
-    # Account table and its indexes (one-to-one with User using same PK)
-    """CREATE TABLE IF NOT EXISTS Account (
-        user_id CHAR(36) PRIMARY KEY,
+    # Account table and its indexes (created first)
+    f"""CREATE TABLE IF NOT EXISTS Account (
+        account_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
         mail VARCHAR(50) NOT NULL UNIQUE CHECK (mail LIKE '%_@_%.__%'),
         password_hash CHAR(60) NOT NULL,
         password_salt CHAR(29) NOT NULL,
@@ -29,11 +19,21 @@ statements = [
         sex VARCHAR(50) CHECK (sex IN ('Male', 'Female', 'Other', 'Prefer not to say')),
         language VARCHAR(50) NOT NULL,
         birth_date DATE CHECK (birth_date <= CURRENT_DATE AND birth_date >= '1900-01-01'),
-        last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        last_login DATETIME DEFAULT CURRENT_TIMESTAMP
     )""",
     """CREATE INDEX IF NOT EXISTS idx_account_mail ON Account(mail)""",
     """CREATE INDEX IF NOT EXISTS idx_account_registration ON Account(registration_date)""",
+
+    # User table and its index (references Account)
+    f"""CREATE TABLE IF NOT EXISTS User (
+        user_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
+        nickname VARCHAR(50) NOT NULL CHECK (length(nickname) >= 3),
+        favorite_genre VARCHAR(50),
+        user_image BLOB,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES Account(account_id) ON DELETE CASCADE ON UPDATE CASCADE
+    )""",
+    """CREATE INDEX IF NOT EXISTS idx_user_nickname ON User(nickname)""",
 
     # Follower table and its indexes
     """CREATE TABLE IF NOT EXISTS Follower (
@@ -106,21 +106,15 @@ statements = [
 
     # Genre table
     f"""CREATE TABLE IF NOT EXISTS Genre (
-        genre_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
-        genre_name VARCHAR(50) NOT NULL UNIQUE CHECK (length(genre_name) > 0)
-    )""",
-    """CREATE INDEX IF NOT EXISTS idx_genre_name ON Genre(genre_name)""",
-    
-    # SongGenre junction table for many-to-many relationship
-    """CREATE TABLE IF NOT EXISTS SongGenre (
-        song_id CHAR(36),
-        genre_id CHAR(36),
+        song_id CHAR(36) NOT NULL,
+        genre_id INTEGER NOT NULL,
         PRIMARY KEY (song_id, genre_id),
         FOREIGN KEY (song_id) REFERENCES Song(song_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (genre_id) REFERENCES Genre(genre_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (genre_id) REFERENCES GenreFields(genre_id) ON DELETE CASCADE ON UPDATE CASCADE
     )""",
-    """CREATE INDEX IF NOT EXISTS idx_song_genre_song_id ON SongGenre(song_id)""",
-    """CREATE INDEX IF NOT EXISTS idx_song_genre_genre_id ON SongGenre(genre_id)""",
+    """CREATE INDEX IF NOT EXISTS idx_genre_song_id ON Genre(song_id)""",
+    
+
 
     # Album table and its indexes
     f"""CREATE TABLE IF NOT EXISTS Album (
@@ -148,19 +142,19 @@ statements = [
     f"""CREATE TABLE IF NOT EXISTS MusicGroup (
         group_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
         group_name VARCHAR(50) NOT NULL UNIQUE CHECK (length(group_name) > 0),
-        number_of_members INTEGER CHECK (number_of_members > 0 AND number_of_members <= 100),
-        creation_date DATE CHECK (creation_date <= CURRENT_DATE),
+        number_of_members INTEGER CHECK (number_of_members > 0),
+        creation_date DATE,
         group_image BLOB,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )""",
     """CREATE INDEX IF NOT EXISTS idx_music_group_name ON MusicGroup(group_name)""",
 
     # Artist table
-    """CREATE TABLE IF NOT EXISTS Artist (
-        group_id CHAR(36),
+    f"""CREATE TABLE IF NOT EXISTS Artist (
+        artist_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
         full_name VARCHAR(50) CHECK (length(full_name) >= 2),
-        PRIMARY KEY (group_id, full_name),
-        FOREIGN KEY (group_id) REFERENCES MusicGroup(group_id) ON DELETE CASCADE ON UPDATE CASCADE
+        origin_country VARCHAR(50),
+        instrument VARCHAR(50)
     )""",
 
     # Album_Group table
@@ -176,12 +170,27 @@ statements = [
     """CREATE TABLE IF NOT EXISTS History (
         user_id CHAR(36),
         start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        duration INTEGER CHECK (duration > 0 AND duration <= 7200), -- Duration in seconds (max 2 hours)
+        duration INTEGER CHECK duration > 0
         song_id CHAR(36),
         PRIMARY KEY (user_id, start_time),
         FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (song_id) REFERENCES Song(song_id) ON DELETE CASCADE ON UPDATE CASCADE
     )""",
     """CREATE INDEX IF NOT EXISTS idx_history_user_id ON History(user_id)""",
-    """CREATE INDEX IF NOT EXISTS idx_history_start_time ON History(start_time)"""
+    """CREATE INDEX IF NOT EXISTS idx_history_start_time ON History(start_time)""",
+
+    # GenreFields table
+    """CREATE TABLE IF NOT EXISTS GenreFields (
+        genre_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        genre_name VARCHAR(50) NOT NULL CHECK (length(genre_name) > 0)
+    )""",
+
+    # GroupArtist table
+    """CREATE TABLE IF NOT EXISTS GroupArtist (
+        group_id CHAR(36),
+        artist_id CHAR(36),
+        PRIMARY KEY (group_id, artist_id),
+        FOREIGN KEY (group_id) REFERENCES MusicGroup(group_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (artist_id) REFERENCES Artist(artist_id) ON DELETE CASCADE ON UPDATE CASCADE
+    )"""
 ]
