@@ -28,7 +28,7 @@ statements = [
         country VARCHAR(50),
         sex VARCHAR(50) CHECK (sex IN ('Male', 'Female', 'Other', 'Prefer not to say')),
         language VARCHAR(50) NOT NULL,
-        birth_date DATE CHECK (birth_date <= CURRENT_DATE AND birth_date >= date('now', '-120 years')),
+        birth_date DATE CHECK (birth_date <= CURRENT_DATE AND birth_date >= '1900-01-01'),
         last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE
     )""",
