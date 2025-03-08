@@ -1189,21 +1189,32 @@ class Genre(Resource):
     @genre_ns.marshal_with(genre_model)
     def get(self, song_id):
         """Get a genre by song ID"""
-        connection = get_db_connection()
-        genre = connection.execute('SELECT * FROM Genre WHERE song_id = ?', (song_id,)).fetchone()
-        connection.close()
-        if genre is None:
-            return {"message": "Genre not found"}, 404
-        return dict(genre)
+        try:
+            with DBConnection() as connection:
+                genre = connection.execute('SELECT * FROM Genre WHERE song_id = ?', (song_id,)).fetchone()
+                if genre is None:
+                    return {"message": "Genre not found"}, 404
+                return dict(genre)
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     def delete(self, song_id):
         """Delete a genre"""
-        connection = get_db_connection()
-        connection.execute('DELETE FROM Genre WHERE song_id = ?', (song_id,))
-        connection.commit()
-        connection.close()
-        return {"message": "Genre deleted successfully"}, 200
+        try:
+            with DBConnection() as connection:
+                connection.execute('DELETE FROM Genre WHERE song_id = ?', (song_id,))
+                return {"message": "Genre deleted successfully"}, 200
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 # a complex query to get the most listened genre in the last month
 @genre_ns.route('/most-listened-last-month')
@@ -1211,9 +1222,6 @@ class MostListenedGenre(Resource):
     @jwt_required()
     def get(self):
         """Get the most listened genre in the last month"""
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        
         query = """
         SELECT g.genre, COALESCE(SUM(h.duration), 0) AS total_listen_time
         FROM History h
@@ -1227,18 +1235,23 @@ class MostListenedGenre(Resource):
         """
         
         try:
-            result = cursor.execute(query).fetchone()
-            if result:
-                genre_stats = {
-                    'genre': result['genre'],
-                    'total_listen_time': result['total_listen_time']
-                }
-                return genre_stats, 200
-            return {'message': 'No listening data found for the specified period'}, 404
-        except sqlite3.Error as e:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                result = cursor.execute(query).fetchone()
+                
+                if result:
+                    genre_stats = {
+                        'genre': result['genre'],
+                        'total_listen_time': result['total_listen_time']
+                    }
+                    return genre_stats, 200
+                return {'message': 'No listening data found for the specified period'}, 404
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
             return {'message': f'Database error: {str(e)}'}, 500
-        finally:
-            connection.close()
+        except Exception as e:
+            return {'message': f'An error occurred: {str(e)}'}, 500
 
 api.add_namespace(genre_ns)
 
