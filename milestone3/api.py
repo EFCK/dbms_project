@@ -142,6 +142,9 @@ def setup_before_request():
         init_db()
         check_db_schema()  # Check the schema after initialization
         
+        # Migrate genre data if needed
+        migrate_genre_data()
+        
         # Try to insert dummy data after initialization
         try:
             insert_dummy_data(DATABASE)
@@ -149,6 +152,82 @@ def setup_before_request():
             print(f"Notice: Could not insert dummy data: {str(e)}")
             
         app._initialization_done = True
+
+def migrate_genre_data():
+    """
+    Migrate data from the old Genre table structure to the new many-to-many structure.
+    This function should be called after init_db() to ensure data consistency.
+    """
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    
+    try:
+        # Check if old genre table exists by looking for a song_id column in Genre table
+        cursor.execute("PRAGMA table_info(Genre)")
+        columns = cursor.fetchall()
+        has_old_structure = any(column[1] == 'song_id' for column in columns)
+        
+        if has_old_structure:
+            print("Detected old Genre table structure. Migrating data...")
+            
+            # Check if SongGenre table exists
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='SongGenre'")
+            has_songgenre_table = cursor.fetchone() is not None
+            
+            if not has_songgenre_table:
+                print("SongGenre table not found. Migration cannot proceed.")
+                return
+            
+            # Get existing genre data
+            cursor.execute("SELECT song_id, genre FROM Genre")
+            old_genres = cursor.fetchall()
+            
+            for song_id, genre_name in old_genres:
+                # Create or get genre_id for this genre name
+                cursor.execute("SELECT genre_id FROM Genre WHERE genre_name = ?", (genre_name,))
+                genre_row = cursor.fetchone()
+                
+                if genre_row:
+                    genre_id = genre_row[0]
+                else:
+                    # Create new genre
+                    genre_id = str(uuid.uuid4())
+                    cursor.execute("INSERT INTO Genre (genre_id, genre_name) VALUES (?, ?)", 
+                                   (genre_id, genre_name))
+                
+                # Create song-genre relationship
+                try:
+                    cursor.execute("INSERT INTO SongGenre (song_id, genre_id) VALUES (?, ?)",
+                                   (song_id, genre_id))
+                except sqlite3.IntegrityError:
+                    # Relationship might already exist - ignore
+                    pass
+            
+            # Rename old Genre table to backup
+            cursor.execute("ALTER TABLE Genre RENAME TO Genre_Old")
+            
+            # Create new Genre table with updated schema
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS Genre (
+                    genre_id CHAR(36) PRIMARY KEY,
+                    genre_name VARCHAR(50) NOT NULL UNIQUE CHECK (length(genre_name) > 0)
+                )
+            """)
+            
+            # Populate new Genre table with unique genres
+            cursor.execute("""
+                INSERT INTO Genre (genre_id, genre_name)
+                SELECT DISTINCT genre_id, genre_name FROM Genre_Old
+            """)
+            
+            connection.commit()
+            print("Genre data migration completed successfully.")
+            
+    except sqlite3.Error as e:
+        connection.rollback()
+        print(f"Error during genre data migration: {str(e)}")
+    finally:
+        connection.close()
 
 # Helper function to get database connection
 def get_db_connection(timeout=30.0):
@@ -1148,8 +1227,13 @@ api.add_namespace(song_ns)
 
 genre_ns = Namespace('genres', description="Manage genres")
 genre_model = api.model('Genre', {
+    'genre_id': fields.String(description="The ID of the genre (auto-generated)"),
+    'genre_name': fields.String(required=True, description="The name of the genre")
+})
+
+song_genre_model = api.model('SongGenre', {
     'song_id': fields.String(required=True, description="The ID of the song"),
-    'genre': fields.String(required=True, description="The genre of the song")
+    'genre_id': fields.String(required=True, description="The ID of the genre")
 })
 
 @genre_ns.route('/')
@@ -1158,10 +1242,16 @@ class GenreList(Resource):
     @genre_ns.marshal_list_with(genre_model)
     def get(self):
         """Get all genres"""
-        connection = get_db_connection()
-        genres = connection.execute('SELECT * FROM Genre').fetchall()
-        connection.close()
-        return [dict(genre) for genre in genres]
+        try:
+            with DBConnection() as connection:
+                genres = connection.execute('SELECT * FROM Genre').fetchall()
+                return [dict(genre) for genre in genres]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     @genre_ns.expect(genre_model)
@@ -1170,12 +1260,20 @@ class GenreList(Resource):
         data = request.json
         
         try:
+            # Generate a UUID if not provided
+            if 'genre_id' not in data:
+                data['genre_id'] = generate_uuid()
+                
             with DBConnection() as connection:
                 cursor = connection.cursor()
-                cursor.execute('INSERT INTO Genre (song_id, genre) VALUES (?, ?)',
-                              (data['song_id'], data['genre']))
+                cursor.execute('INSERT INTO Genre (genre_id, genre_name) VALUES (?, ?)',
+                              (data['genre_id'], data['genre_name']))
                 
-            return {"message": "Genre created successfully"}, 201
+            return {"message": "Genre created successfully", "genre_id": data['genre_id']}, 201
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                return {"message": "A genre with this name already exists"}, 409
+            return {"message": f"Database integrity error: {str(e)}"}, 400
         except sqlite3.OperationalError as e:
             if "database is locked" in str(e):
                 return {"message": "Database is currently busy, please try again"}, 503
@@ -1183,15 +1281,15 @@ class GenreList(Resource):
         except Exception as e:
             return {"message": f"An error occurred: {str(e)}"}, 500
 
-@genre_ns.route('/<string:song_id>')
+@genre_ns.route('/<string:genre_id>')
 class Genre(Resource):
     @jwt_required()
     @genre_ns.marshal_with(genre_model)
-    def get(self, song_id):
-        """Get a genre by song ID"""
+    def get(self, genre_id):
+        """Get a genre by ID"""
         try:
             with DBConnection() as connection:
-                genre = connection.execute('SELECT * FROM Genre WHERE song_id = ?', (song_id,)).fetchone()
+                genre = connection.execute('SELECT * FROM Genre WHERE genre_id = ?', (genre_id,)).fetchone()
                 if genre is None:
                     return {"message": "Genre not found"}, 404
                 return dict(genre)
@@ -1203,12 +1301,160 @@ class Genre(Resource):
             return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
-    def delete(self, song_id):
+    @genre_ns.expect(genre_model)
+    def put(self, genre_id):
+        """Update a genre"""
+        data = request.json
+        
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                # Check if genre exists
+                genre = cursor.execute('SELECT 1 FROM Genre WHERE genre_id = ?', (genre_id,)).fetchone()
+                if not genre:
+                    return {"message": "Genre not found"}, 404
+                
+                cursor.execute('UPDATE Genre SET genre_name = ? WHERE genre_id = ?',
+                              (data['genre_name'], genre_id))
+                
+            return {"message": "Genre updated successfully"}, 200
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                return {"message": "A genre with this name already exists"}, 409
+            return {"message": f"Database integrity error: {str(e)}"}, 400
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
+
+    @jwt_required()
+    def delete(self, genre_id):
         """Delete a genre"""
         try:
             with DBConnection() as connection:
-                connection.execute('DELETE FROM Genre WHERE song_id = ?', (song_id,))
+                cursor = connection.cursor()
+                # Check if genre exists
+                genre = cursor.execute('SELECT 1 FROM Genre WHERE genre_id = ?', (genre_id,)).fetchone()
+                if not genre:
+                    return {"message": "Genre not found"}, 404
+                
+                connection.execute('DELETE FROM Genre WHERE genre_id = ?', (genre_id,))
                 return {"message": "Genre deleted successfully"}, 200
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
+
+# Add endpoints for the many-to-many relationship
+@genre_ns.route('/songs')
+class SongGenreList(Resource):
+    @jwt_required()
+    @genre_ns.marshal_list_with(song_genre_model)
+    def get(self):
+        """Get all song-genre relationships"""
+        try:
+            with DBConnection() as connection:
+                song_genres = connection.execute('SELECT * FROM SongGenre').fetchall()
+                return [dict(sg) for sg in song_genres]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
+    
+    @jwt_required()
+    @genre_ns.expect(song_genre_model)
+    def post(self):
+        """Associate a song with a genre"""
+        data = request.json
+        
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Check if the song exists
+                song = cursor.execute('SELECT 1 FROM Song WHERE song_id = ?', (data['song_id'],)).fetchone()
+                if not song:
+                    return {"message": "Song not found"}, 404
+                
+                # Check if the genre exists
+                genre = cursor.execute('SELECT 1 FROM Genre WHERE genre_id = ?', (data['genre_id'],)).fetchone()
+                if not genre:
+                    return {"message": "Genre not found"}, 404
+                
+                # Check if the relationship already exists
+                existing = cursor.execute(
+                    'SELECT 1 FROM SongGenre WHERE song_id = ? AND genre_id = ?',
+                    (data['song_id'], data['genre_id'])
+                ).fetchone()
+                
+                if existing:
+                    return {"message": "This song is already associated with this genre"}, 409
+                
+                cursor.execute(
+                    'INSERT INTO SongGenre (song_id, genre_id) VALUES (?, ?)',
+                    (data['song_id'], data['genre_id'])
+                )
+                
+            return {"message": "Song associated with genre successfully"}, 201
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
+
+@genre_ns.route('/songs/<string:song_id>/genres/<string:genre_id>')
+class SongGenre(Resource):
+    @jwt_required()
+    @genre_ns.marshal_with(song_genre_model)
+    def get(self, song_id, genre_id):
+        """Get a specific song-genre relationship"""
+        try:
+            with DBConnection() as connection:
+                song_genre = connection.execute(
+                    'SELECT * FROM SongGenre WHERE song_id = ? AND genre_id = ?',
+                    (song_id, genre_id)
+                ).fetchone()
+                
+                if song_genre is None:
+                    return {"message": "Song-genre relationship not found"}, 404
+                    
+                return dict(song_genre)
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
+    
+    @jwt_required()
+    def delete(self, song_id, genre_id):
+        """Remove a genre from a song"""
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Check if the relationship exists
+                song_genre = cursor.execute(
+                    'SELECT 1 FROM SongGenre WHERE song_id = ? AND genre_id = ?',
+                    (song_id, genre_id)
+                ).fetchone()
+                
+                if not song_genre:
+                    return {"message": "Song-genre relationship not found"}, 404
+                
+                cursor.execute(
+                    'DELETE FROM SongGenre WHERE song_id = ? AND genre_id = ?',
+                    (song_id, genre_id)
+                )
+                
+            return {"message": "Genre removed from song successfully"}, 200
         except sqlite3.OperationalError as e:
             if "database is locked" in str(e):
                 return {"message": "Database is currently busy, please try again"}, 503
@@ -1223,13 +1469,14 @@ class MostListenedGenre(Resource):
     def get(self):
         """Get the most listened genre in the last month"""
         query = """
-        SELECT g.genre, COALESCE(SUM(h.duration), 0) AS total_listen_time
+        SELECT g.genre_name, COALESCE(SUM(h.duration), 0) AS total_listen_time
         FROM History h
         JOIN Song s ON h.song_id = s.song_id
-        JOIN Genre g ON s.song_id = g.song_id
+        JOIN SongGenre sg ON s.song_id = sg.song_id
+        JOIN Genre g ON sg.genre_id = g.genre_id
         WHERE h.start_time >= datetime('now', '-2 month')
         AND h.start_time <= datetime('now', '-1 month')
-        GROUP BY g.genre
+        GROUP BY g.genre_id
         ORDER BY total_listen_time DESC
         LIMIT 1
         """
@@ -1241,7 +1488,7 @@ class MostListenedGenre(Resource):
                 
                 if result:
                     genre_stats = {
-                        'genre': result['genre'],
+                        'genre': result['genre_name'],
                         'total_listen_time': result['total_listen_time']
                     }
                     return genre_stats, 200

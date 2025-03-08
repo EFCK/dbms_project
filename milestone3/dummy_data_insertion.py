@@ -1,5 +1,6 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
+import uuid
 
 def insert_dummy_data(DATABASE):
     connection = sqlite3.connect(DATABASE)
@@ -647,11 +648,35 @@ def insert_user_likes(cursor, user_id_map, song_id_map):
     )
 
 def insert_genres(cursor, song_id_map):
-    # Define list of song genres
-    genres = [
+    # Define unique genres
+    unique_genres = [
+        'Rock', 'Pop', 'Jazz', 'Classical', 'Rap', 'Folk', 'Indie', 'Electronic', 
+        'Metal', 'Country', 'R&B', 'Blues', 'Reggae', 'Hip Hop', 'Alternative'
+    ]
+    
+    # First insert the unique genres and build a mapping
+    genre_id_map = {}
+    
+    for genre_name in unique_genres:
+        # Generate a UUID for each genre
+        genre_id = str(uuid.uuid4())
+        
+        # Insert the genre
+        cursor.execute(
+            "INSERT INTO Genre (genre_id, genre_name) VALUES (?, ?)",
+            (genre_id, genre_name)
+        )
+        
+        # Store the genre_id in the map
+        genre_id_map[genre_name] = genre_id
+    
+    # Define song-genre relationships
+    song_genres = [
         ('Stairway to Heaven', 'Rock'),
         ('Bohemian Rhapsody', 'Rock'),
+        ('Bohemian Rhapsody', 'Pop'),  # Example of multiple genres for one song
         ('Metal Gear Solid 3 Theme', 'Jazz'),
+        ('Metal Gear Solid 3 Theme', 'Alternative'),  # Multiple genres
         ('Bilgewater', 'Rock'),
         ('Kiss of Death', 'Pop'),
         ('Under the tree', 'Jazz'),
@@ -662,27 +687,36 @@ def insert_genres(cursor, song_id_map):
         ('All Along the Watchtower', 'Rock'),
         ('Sweet Child O Mine', 'Rock'),
         ('Nothing Else Matters', 'Rock'),
+        ('Nothing Else Matters', 'Metal'),  # Multiple genres
         ('Piano Sonata No. 14', 'Classical'),
         ('99 Problems', 'Rap'),
+        ('99 Problems', 'Hip Hop'),  # Multiple genres
         ('Lose Yourself', 'Rap'),
         ('Harvest Moon', 'Folk'),
         ('Love Will Tear Us Apart', 'Indie'),
         ('One More Time', 'Electronic'),
         ('Kashmir', 'Rock'),
         ('Imagine', 'Pop'),
+        ('Imagine', 'Folk'),  # Multiple genres
         ('Hotel California', 'Rock'),
         ('Thriller', 'Pop'),
         ('Smells Like Teen Spirit', 'Rock'),
-        ('Billie Jean', 'Pop')
+        ('Smells Like Teen Spirit', 'Alternative'),  # Multiple genres
+        ('Billie Jean', 'Pop'),
+        ('Billie Jean', 'R&B')  # Multiple genres
     ]
     
-    # Prepare data for executemany
-    genre_data = [(song_id_map[song], genre) for song, genre in genres]
+    # Prepare data for the SongGenre junction table
+    song_genre_data = []
     
-    # Use executemany for bulk insertion
+    for song_name, genre_name in song_genres:
+        if song_name in song_id_map and genre_name in genre_id_map:
+            song_genre_data.append((song_id_map[song_name], genre_id_map[genre_name]))
+    
+    # Use executemany for bulk insertion into the junction table
     cursor.executemany(
-        "INSERT INTO Genre (song_id, genre) VALUES (?, ?)",
-        genre_data
+        "INSERT INTO SongGenre (song_id, genre_id) VALUES (?, ?)",
+        song_genre_data
     )
 
 def insert_albums(cursor):

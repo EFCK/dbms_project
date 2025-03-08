@@ -104,13 +104,23 @@ statements = [
     )""",
     """CREATE INDEX IF NOT EXISTS idx_user_likes_user_id ON UserLikes(user_id)""",
 
-    # Genre table and its index
-    """CREATE TABLE IF NOT EXISTS Genre (
-        song_id CHAR(36) PRIMARY KEY,
-        genre VARCHAR(50) NOT NULL CHECK (length(genre) > 0),
-        FOREIGN KEY (song_id) REFERENCES Song(song_id) ON DELETE CASCADE ON UPDATE CASCADE
+    # Genre table
+    f"""CREATE TABLE IF NOT EXISTS Genre (
+        genre_id CHAR(36) PRIMARY KEY DEFAULT ({uuid_default}),
+        genre_name VARCHAR(50) NOT NULL UNIQUE CHECK (length(genre_name) > 0)
     )""",
-    """CREATE INDEX IF NOT EXISTS idx_genre_name ON Genre(genre)""",
+    """CREATE INDEX IF NOT EXISTS idx_genre_name ON Genre(genre_name)""",
+    
+    # SongGenre junction table for many-to-many relationship
+    """CREATE TABLE IF NOT EXISTS SongGenre (
+        song_id CHAR(36),
+        genre_id CHAR(36),
+        PRIMARY KEY (song_id, genre_id),
+        FOREIGN KEY (song_id) REFERENCES Song(song_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (genre_id) REFERENCES Genre(genre_id) ON DELETE CASCADE ON UPDATE CASCADE
+    )""",
+    """CREATE INDEX IF NOT EXISTS idx_song_genre_song_id ON SongGenre(song_id)""",
+    """CREATE INDEX IF NOT EXISTS idx_song_genre_genre_id ON SongGenre(genre_id)""",
 
     # Album table and its indexes
     f"""CREATE TABLE IF NOT EXISTS Album (
