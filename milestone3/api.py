@@ -151,18 +151,49 @@ def setup_before_request():
         app._initialization_done = True
 
 # Helper function to get database connection
-def get_db_connection():
+def get_db_connection(timeout=30.0):
     """
     Create and return a new database connection with row factory enabled.
     
+    Args:
+        timeout (float): Timeout in seconds for the database connection
+        
     Returns:
         sqlite3.Connection: An active connection to the SQLite database with row_factory
                            enabled for dict-like access to rows.
     """
-    connection = sqlite3.connect(DATABASE)
+    connection = sqlite3.connect(DATABASE, timeout=timeout)
     connection.row_factory = sqlite3.Row
     return connection
 
+# Context manager for database connection to ensure proper closing
+class DBConnection:
+    """
+    Context manager for database connections to ensure proper closing
+    even when exceptions occur.
+    
+    Usage:
+        with DBConnection() as conn:
+            # use conn for database operations
+    """
+    def __init__(self, timeout=30.0):
+        self.timeout = timeout
+        self.conn = None
+        
+    def __enter__(self):
+        self.conn = get_db_connection(self.timeout)
+        return self.conn
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.conn:
+            if exc_type is not None:
+                # If there was an exception, roll back
+                self.conn.rollback()
+            else:
+                # Otherwise, commit any pending transaction
+                self.conn.commit()
+            self.conn.close()
+            
 # Helper function to generate a UUID
 def generate_uuid():
     """
@@ -274,10 +305,16 @@ class AccountList(Resource):
     @account_ns.marshal_list_with(account_model)
     def get(self):
         """Get all accounts"""
-        connection = get_db_connection()
-        accounts = connection.execute('SELECT * FROM Account').fetchall()
-        connection.close()
-        return [dict(account) for account in accounts]
+        try:
+            with DBConnection() as connection:
+                accounts = connection.execute('SELECT * FROM Account').fetchall()
+                return [dict(account) for account in accounts]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     @account_ns.expect(account_model)
@@ -431,16 +468,8 @@ class UserList(Resource):
         401: 'Unauthorized - Invalid or missing token'
     })
     def post(self):
-        """
-        Create a new user profile
-        
-        Creates a new user with the provided information. The user_id will be 
-        auto-generated if not provided. Nickname must be at least 3 characters long 
-        and must be unique.
-        """
+        """Create a new user"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
         
         # Check nickname length constraint
         if len(data.get('nickname', '')) < 3:
@@ -451,19 +480,23 @@ class UserList(Resource):
             if 'user_id' not in data:
                 data['user_id'] = generate_uuid()
                 
-            # Insert the user with the UUID
-            cursor.execute(
-                'INSERT INTO User (user_id, nickname, favorite_genre, user_image) VALUES (?, ?, ?, ?)',
-                (data['user_id'], data['nickname'], data.get('favorite_genre'), data.get('user_image'))
-            )
-            connection.commit()
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                # Insert the user with the UUID
+                cursor.execute(
+                    'INSERT INTO User (user_id, nickname, favorite_genre, user_image) VALUES (?, ?, ?, ?)',
+                    (data['user_id'], data['nickname'], data.get('favorite_genre'), data.get('user_image'))
+                )
             
             return {"message": "User created successfully", "user_id": data['user_id']}, 201
-        except sqlite3.Error as e:
-            connection.rollback()
+        except sqlite3.IntegrityError:
+            return {"message": "A user with this nickname already exists"}, 409
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
             return {"message": f"Database error: {str(e)}"}, 500
-        finally:
-            connection.close()
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @user_ns.route('/<string:user_id>')
 class User(Resource):
@@ -1135,13 +1168,20 @@ class GenreList(Resource):
     def post(self):
         """Create a new genre"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO Genre (song_id, genre) VALUES (?, ?)',
-                       (data['song_id'], data['genre']))
-        connection.commit()
-        connection.close()
-        return {"message": "Genre created successfully"}, 201
+        
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                cursor.execute('INSERT INTO Genre (song_id, genre) VALUES (?, ?)',
+                              (data['song_id'], data['genre']))
+                
+            return {"message": "Genre created successfully"}, 201
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @genre_ns.route('/<string:song_id>')
 class Genre(Resource):
@@ -1579,18 +1619,28 @@ class GroupList(Resource):
     def post(self):
         """Create a new group"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
         
-        # Generate a UUID for the group
-        group_id = generate_uuid()
-        
-        cursor.execute('INSERT INTO MusicGroup (group_id, group_name, number_of_members, creation_date, group_image) VALUES (?, ?, ?, ?, ?)',
-                       (group_id, data['group_name'], data.get('number_of_members'),
-                        data.get('creation_date'), data.get('group_image')))
-        connection.commit()
-        connection.close()
-        return {"message": "Group created successfully", "group_id": group_id}, 201
+        try:
+            # Generate a UUID for the group if not provided
+            if 'group_id' not in data:
+                data['group_id'] = generate_uuid()
+                
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                cursor.execute('INSERT INTO MusicGroup (group_id, group_name, number_of_members, creation_date, group_image) VALUES (?, ?, ?, ?, ?)',
+                              (data['group_id'], data['group_name'], data.get('number_of_members'),
+                               data.get('creation_date'), data.get('group_image')))
+                
+            return {"message": "Group created successfully", "group_id": data['group_id']}, 201
+        except sqlite3.IntegrityError:
+            return {"message": "A group with this name already exists"}, 409
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @group_ns.route('/<string:group_id>')
 class Group(Resource):
@@ -1713,26 +1763,29 @@ class ArtistList(Resource):
     def post(self):
         """Create a new artist"""
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
         
-        # Check if the group exists
-        group = cursor.execute('SELECT 1 FROM MusicGroup WHERE group_id = ?', (data['group_id'],)).fetchone()
-        if not group:
-            # If group_id doesn't exist, we can optionally create a new group
-            # Generate a UUID for the group
-            group_id = generate_uuid()
-            # Use the provided group_id if it exists, otherwise use the newly generated one
-            data['group_id'] = data.get('group_id', group_id)
-            
-            # Let the user know we're creating a group
-            return {"message": "Group not found. Create a group first"}, 404
-        
-        cursor.execute('INSERT INTO Artist (group_id, full_name) VALUES (?, ?)',
-                       (data['group_id'], data['full_name']))
-        connection.commit()
-        connection.close()
-        return {"message": "Artist created successfully"}, 201
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Check if the group exists
+                group = cursor.execute('SELECT 1 FROM MusicGroup WHERE group_id = ?', (data['group_id'],)).fetchone()
+                if not group:
+                    # If group_id doesn't exist, return an error
+                    return {"message": "Group not found. Create a group first"}, 404
+                
+                cursor.execute('INSERT INTO Artist (group_id, full_name) VALUES (?, ?)',
+                              (data['group_id'], data['full_name']))
+                
+            return {"message": "Artist created successfully"}, 201
+        except sqlite3.IntegrityError:
+            return {"message": "An artist with this name already exists in this group"}, 409
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @artist_ns.route('/<string:group_id>/artists')
 class ArtistByGroup(Resource):
@@ -1804,7 +1857,8 @@ class HistoryList(Resource):
     @history_ns.marshal_list_with(history_model)
     @history_ns.doc(responses={
         200: 'Success - Returns list of history records',
-        401: 'Unauthorized - Invalid or missing token'
+        401: 'Unauthorized - Invalid or missing token',
+        503: 'Service unavailable - Database is locked'
     })
     def get(self):
         """
@@ -1813,10 +1867,16 @@ class HistoryList(Resource):
         Returns a complete list of all user listening activity.
         This can be used for analytics and recommendation systems.
         """
-        connection = get_db_connection()
-        history_records = connection.execute('SELECT * FROM History').fetchall()
-        connection.close()
-        return [dict(history) for history in history_records]
+        try:
+            with DBConnection() as connection:
+                history_records = connection.execute('SELECT * FROM History').fetchall()
+                return [dict(history) for history in history_records]
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
     @jwt_required()
     @history_ns.expect(history_model)
@@ -1824,7 +1884,8 @@ class HistoryList(Resource):
         201: 'History record created successfully',
         400: 'Bad request - Invalid data',
         401: 'Unauthorized - Invalid or missing token',
-        404: 'User or song not found'
+        404: 'User or song not found',
+        503: 'Service unavailable - Database is locked'
     })
     def post(self):
         """
@@ -1834,32 +1895,36 @@ class HistoryList(Resource):
         The start_time will default to the current server time if not specified.
         """
         data = request.json
-        connection = get_db_connection()
-        cursor = connection.cursor()
         
-        # Verify the user exists
-        user = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (data['user_id'],)).fetchone()
-        if not user:
-            connection.close()
-            return {"message": "Cannot log history for non-existent user"}, 404
-            
-        # Verify the song exists
-        song = cursor.execute('SELECT 1 FROM Song WHERE song_id = ?', (data['song_id'],)).fetchone()
-        if not song:
-            connection.close()
-            return {"message": "Cannot log history for non-existent song"}, 404
-            
-        # Use explicit start_time if provided, otherwise use CURRENT_TIMESTAMP
-        if 'start_time' in data:
-            cursor.execute('INSERT INTO History (user_id, start_time, duration, song_id) VALUES (?, ?, ?, ?)',
-                          (data['user_id'], data['start_time'], data['duration'], data['song_id']))
-        else:
-            cursor.execute('INSERT INTO History (user_id, duration, song_id) VALUES (?, ?, ?)',
-                          (data['user_id'], data['duration'], data['song_id']))
-                          
-        connection.commit()
-        connection.close()
-        return {"message": "Listening session recorded!"}, 201
+        try:
+            with DBConnection() as connection:
+                cursor = connection.cursor()
+                
+                # Verify the user exists
+                user = cursor.execute('SELECT 1 FROM User WHERE user_id = ?', (data['user_id'],)).fetchone()
+                if not user:
+                    return {"message": "Cannot log history for non-existent user"}, 404
+                    
+                # Verify the song exists
+                song = cursor.execute('SELECT 1 FROM Song WHERE song_id = ?', (data['song_id'],)).fetchone()
+                if not song:
+                    return {"message": "Cannot log history for non-existent song"}, 404
+                    
+                # Use explicit start_time if provided, otherwise use CURRENT_TIMESTAMP
+                if 'start_time' in data:
+                    cursor.execute('INSERT INTO History (user_id, start_time, duration, song_id) VALUES (?, ?, ?, ?)',
+                                  (data['user_id'], data['start_time'], data['duration'], data['song_id']))
+                else:
+                    cursor.execute('INSERT INTO History (user_id, duration, song_id) VALUES (?, ?, ?)',
+                                  (data['user_id'], data['duration'], data['song_id']))
+                    
+            return {"message": "Listening session recorded!"}, 201
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e):
+                return {"message": "Database is currently busy, please try again"}, 503
+            return {"message": f"Database error: {str(e)}"}, 500
+        except Exception as e:
+            return {"message": f"An error occurred: {str(e)}"}, 500
 
 @history_ns.route('/<string:user_id>')
 class UserHistory(Resource):
