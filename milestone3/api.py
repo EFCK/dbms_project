@@ -260,12 +260,12 @@ account_model = api.model('Account', {
     'password_salt': fields.String(required=True, description="Password salt"),
     'full_name': fields.String(description="The full name"),
     'is_subscriber': fields.Boolean(description="Subscription status"),
-    'registration_date': fields.DateTime(description="Registration timestamp"),
+    'registration_date': fields.DateTime(dt_format='iso8601', description="Registration timestamp"),
     'country': fields.String(description="Country"),
     'sex': fields.String(description="Gender", enum=['Male', 'Female', 'Other', 'Prefer not to say']),
     'language': fields.String(required=True, description="Preferred language"),
     'birth_date': fields.Date(description="Date of birth (YYYY-MM-DD)"),
-    'last_login': fields.DateTime(description="Last login timestamp")
+    'last_login': fields.DateTime(dt_format='iso8601', description="Last login timestamp")
 })
 
 @account_ns.route('/')

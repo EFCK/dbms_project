@@ -94,8 +94,8 @@ def insert_dummy_data(DATABASE):
                 print(f"Account with email {email} already exists, skipping")
                 continue
                 
-            # Current timestamp for last_login
-            last_login = '2024-01-01 12:00:00'
+            # Current timestamp for last_login using ISO 8601 format
+            last_login = '2024-01-01T12:00:00'
             
             try:
                 # Insert into Account table with proper user_id and required fields
@@ -946,26 +946,26 @@ def insert_album_groups(cursor, album_id_map, group_id_map):
 
 def insert_history(cursor, user_id_map, song_id_map):
     history_entries = [
-        ('Tunceredits', 'Stairway to Heaven', '2023-01-01 12:00:00', 210),
-        ('345math', 'Bohemian Rhapsody', '2024-01-01 12:00:00', 210),
-        ('EFCK', 'Metal Gear Solid 3 Theme', '2024-12-01 12:00:00', 210),
-        ('Batman', 'Bilgewater', '2024-11-15 12:00:00', 210),
-        ('Charlie', 'Kiss of Death', '2024-11-01 12:00:00', 210),
-        ('musiclover', 'Imagine', '2024-05-10 14:30:00', 180),
-        ('jazzcat', 'All Along the Watchtower', '2024-05-11 09:15:00', 240),
-        ('rocknroller', 'Sweet Child O Mine', '2024-05-12 18:45:00', 300),
-        ('beatmaker', 'Lose Yourself', '2024-05-13 22:20:00', 320),
-        ('classicfan', 'Piano Sonata No. 14', '2024-05-14 16:10:00', 600),
-        ('rapperfan', '99 Problems', '2024-05-15 13:40:00', 226),
-        ('livemusic', 'Harvest Moon', '2024-05-16 20:30:00', 312),
-        ('vinyladdict', 'Love Will Tear Us Apart', '2024-05-17 19:05:00', 218),
-        ('concertgoer', 'One More Time', '2024-05-18 23:55:00', 320),
-        ('producer', 'Thriller', '2024-05-19 17:25:00', 358),
-        ('Tunceredits', 'Hotel California', '2024-05-20 08:30:00', 390),
-        ('345math', 'Nothing Else Matters', '2024-05-21 11:45:00', 386),
-        ('EFCK', 'Imagine', '2024-05-22 15:15:00', 183),
-        ('Charlie', 'Billie Jean', '2024-05-23 21:10:00', 293),
-        ('mgs6', 'Kashmir', '2024-05-24 10:05:00', 508)
+        ('Tunceredits', 'Stairway to Heaven', '2023-01-01T12:00:00', 210),
+        ('345math', 'Bohemian Rhapsody', '2024-01-01T12:00:00', 210),
+        ('EFCK', 'Metal Gear Solid 3 Theme', '2024-12-01T12:00:00', 210),
+        ('Batman', 'Bilgewater', '2024-11-15T12:00:00', 210),
+        ('Charlie', 'Kiss of Death', '2024-11-01T12:00:00', 210),
+        ('musiclover', 'Imagine', '2024-05-10T14:30:00', 180),
+        ('jazzcat', 'All Along the Watchtower', '2024-05-11T09:15:00', 240),
+        ('rocknroller', 'Sweet Child O Mine', '2024-05-12T18:45:00', 300),
+        ('beatmaker', 'Lose Yourself', '2024-05-13T22:20:00', 320),
+        ('classicfan', 'Piano Sonata No. 14', '2024-05-14T16:10:00', 600),
+        ('rapperfan', '99 Problems', '2024-05-15T13:40:00', 226),
+        ('livemusic', 'Harvest Moon', '2024-05-16T20:30:00', 312),
+        ('vinyladdict', 'Love Will Tear Us Apart', '2024-05-17T19:05:00', 218),
+        ('concertgoer', 'One More Time', '2024-05-18T23:55:00', 320),
+        ('producer', 'Thriller', '2024-05-19T17:25:00', 358),
+        ('Tunceredits', 'Hotel California', '2024-05-20T08:30:00', 390),
+        ('345math', 'Nothing Else Matters', '2024-05-21T11:45:00', 386),
+        ('EFCK', 'Imagine', '2024-05-22T15:15:00', 183),
+        ('Charlie', 'Billie Jean', '2024-05-23T21:10:00', 293),
+        ('mgs6', 'Kashmir', '2024-05-24T10:05:00', 508)
     ]
     
     # Prepare data for executemany
