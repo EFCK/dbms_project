@@ -170,7 +170,7 @@ statements = [
     """CREATE TABLE IF NOT EXISTS History (
         user_id CHAR(36),
         start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        duration INTEGER CHECK duration > 0
+        duration INTEGER CHECK (duration > 0),
         song_id CHAR(36),
         PRIMARY KEY (user_id, start_time),
         FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE,

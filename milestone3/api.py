@@ -2558,4 +2558,5 @@ api.add_namespace(group_artist_ns)
 
 if __name__ == '__main__':
     init_db()
+    insert_dummy_data(DATABASE)
     app.run(debug=True)

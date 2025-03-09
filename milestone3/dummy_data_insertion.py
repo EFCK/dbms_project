@@ -18,298 +18,737 @@ def insert_dummy_data(DATABASE):
             'musiclover', 'jazzcat', 'rocknroller', 'beatmaker', 'classicfan',
             'rapperfan', 'livemusic', 'vinyladdict', 'concertgoer', 'producer'
         ]
-        if len(nicknames) != len(set(nicknames)):
-            raise ValueError("Found duplicate nicknames in dummy data! Each nickname must be unique.")
+        # Manually assign UUIDs for accounts
+        account_id_map = {
+            'Tunceredits': '11111111-1111-1111-1111-111111111111',
+            '345math': '22222222-2222-2222-2222-222222222222',
+            'EFCK': '33333333-3333-3333-3333-333333333333',
+            'Batman': '44444444-4444-4444-4444-444444444444',
+            'Charlie': '55555555-5555-5555-5555-555555555555',
+            'mgs6': '66666666-6666-6666-6666-666666666666',
+            'infinityedge': '77777777-7777-7777-7777-777777777777',
+            'franxx': '88888888-8888-8888-8888-888888888888',
+            'rockson': '99999999-9999-9999-9999-999999999999',
+            '800kmid': '00000000-0000-0000-0000-000000000000',
+            'musiclover': 'aaaaaaaa-aaaa-aaaa-aaaa-1aaaaaaaaaaa',
+            'jazzcat': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbb2bbbbb',
+            'rocknroller': 'cccccccc-cccc-cccc-cccc-c3cccccccccc',
+            'beatmaker': 'dddddddd-dddd-dddd-dddd-ddd4dddddddd',
+            'classicfan': 'eeeeeeee-eeee-eeee-eeee-ee5eeeeeeeee',
+            'rapperfan': 'ffffffff-ffff-ffff-ffff-fff6ffffffff',
+            'livemusic': '11111111-2222-3333-4444-555575555555',
+            'vinyladdict': '22222222-3333-4444-5555-668666666666',
+            'concertgoer': '33333333-4444-5555-6666-779777777777',
+            'producer': '44444444-5555-6666-7777-888880888888'
+        }
+
+        # Define user_id_map using account_id_map
+        user_id_map = account_id_map
+
+        playlists = [
+            ('AGLAMA GARANTILI KARISIK', 'A playlist of popular rock songs', 'Tunceredits'),
+            ('Lofi', 'Student dying musics', '345math'),
+            ('Zam yaparken dinlemelik müzikler', 'Economic boost songs', 'EFCK'),
+            ('Jazz Classics', 'The best of jazz music', 'jazzcat'),
+            ('Rock Anthems', 'Classic rock hits', 'rocknroller')
+        ]
+
+        # Ensure all playlists have unique IDs
+        playlist_id_map = {
+            'AGLAMA GARANTILI KARISIK': '55555555-5555-5555-5555-655555555555',
+            'Lofi': '66666666-6666-6666-6666-666656666666',
+            'Zam yaparken dinlemelik müzikler': '77777777-7777-7777-7777-776777777777',
+            'Jazz Classics': '88888488-8888-8888-8888-888888888888',
+            'Rock Anthems': '99919999-9999-9999-9999-999999999999'
+        }
+
+        # Example data for songs
+        songs = [
+            ('Stairway to Heaven', 482),
+            ('Bohemian Rhapsody', 355),
+            ('Metal Gear Solid 3 Theme', 150),
+            ('Kiss of Death', 200),
+            ('All Along the Watchtower', 220),
+            ('Sweet Child O Mine', 250),
+            ('Lose Yourself', 200),
+            ('Love Will Tear Us Apart', 220),
+            ('One More Time', 250),
+            ('Harvest Moon', 200),
+            ('Hotel California', 220),
+            ('Nothing Else Matters', 250)
+        ]
+
+        playlist_user_data = [
+            ('Tunceredits', 'AGLAMA GARANTILI KARISIK'),
+            ('345math', 'Lofi'), 
+            ('EFCK', 'Zam yaparken dinlemelik müzikler'),
+            ('jazzcat', 'Jazz Classics'),
+            ('rocknroller', 'Rock Anthems'),
+            ('musiclover', 'AGLAMA GARANTILI KARISIK'),
+            ('vinyladdict', 'Lofi'),
+            ('concertgoer', 'Zam yaparken dinlemelik müzikler'),
+            ('producer', 'Jazz Classics'),
+            ('rapperfan', 'Rock Anthems'),
+            ('livemusic', 'AGLAMA GARANTILI KARISIK'),
+            ('mgs6', 'Lofi'),
+            ('infinityedge', 'Zam yaparken dinlemelik müzikler'),
+            ('franxx', 'Jazz Classics'),
+            ('rockson', 'Rock Anthems')
+        ]
         
-        # Print a message about inserting users
+        playlist_song_data = [
+            ('AGLAMA GARANTILI KARISIK', 'Stairway to Heaven'),
+            ('Lofi', 'Bohemian Rhapsody'),
+            ('Zam yaparken dinlemelik müzikler', 'Metal Gear Solid 3 Theme'),
+            ('Jazz Classics', 'Kiss of Death'),
+            ('Rock Anthems', 'All Along the Watchtower'),
+            ('AGLAMA GARANTILI KARISIK', 'Sweet Child O Mine'),
+            ('Lofi', 'Lose Yourself'),
+            ('Zam yaparken dinlemelik müzikler', 'Love Will Tear Us Apart'),
+            ('Jazz Classics', 'One More Time'),
+            ('Rock Anthems', 'Harvest Moon'),
+            ('AGLAMA GARANTILI KARISIK', 'Hotel California'),
+        ]
+
+        # Example data for user likes
+        User_likes_data = [
+            ('Tunceredits', 'Stairway to Heaven'),
+            ('345math', 'Bohemian Rhapsody'),
+            ('EFCK', 'Metal Gear Solid 3 Theme'),
+            ('Batman', 'Kiss of Death'),
+            ('jazzcat', 'All Along the Watchtower'), 
+            ('rocknroller', 'Sweet Child O Mine'),
+            ('musiclover', 'Lose Yourself'),
+            ('vinyladdict', 'Love Will Tear Us Apart'),
+            ('concertgoer', 'One More Time'),
+            ('producer', 'Harvest Moon'),
+            ('rapperfan', 'Hotel California'),
+            ('livemusic', 'Nothing Else Matters'),
+            ('mgs6', 'Stairway to Heaven'),
+            ('infinityedge', 'Bohemian Rhapsody'),
+            ('franxx', 'Metal Gear Solid 3 Theme'),
+            ('rockson', 'Kiss of Death'),
+            ('Tunceredits', 'Sweet Child O Mine'),
+            ('345math', 'One More Time'),
+            ('EFCK', 'Hotel California'),
+            ('Batman', 'Nothing Else Matters')
+        ]
+        # Example data for albums
+        albums = [
+            ('This Fire', 'An amazing album', '2020-01-01'),
+            ('The Wall', 'A classic album', '1979-11-30'),
+            ('Evolve', 'Modern rock album', '2017-06-23'),
+            ('The Division Bell', 'Pink Floyd album', '1994-03-28'),
+            ('Led Zeppelin IV', 'Classic rock album', '1971-11-08'),
+            ('A Night at the Opera', 'Queen masterpiece', '1975-11-21'),
+            ('Master of Puppets', 'Metallica classic', '1986-03-03'),
+            ('Beethoven: Complete Sonatas', 'Classical masterpieces', '1950-01-01'),
+            ('The Blueprint', 'Jay-Z classic', '2001-09-11'),
+            ('Harvest', 'Neil Young folk album', '1972-02-01'),
+            ('Unknown Pleasures', 'Joy Division debut', '1979-06-15'),
+            ('Discovery', 'Daft Punk electronic classic', '2001-03-12'),
+            ('Physical Graffiti', 'Led Zeppelin double album', '1975-02-24'),
+            ('Imagine', 'John Lennon classic', '1971-09-09'),
+            ('Hotel California', 'Eagles masterpiece', '1976-12-08'),
+            ('Thriller', 'Michael Jackson bestseller', '1982-11-30'),
+            ('Nevermind', 'Nirvana breakthrough', '1991-09-24'),
+            ('Dangerous', 'Michael Jackson album', '1991-11-26'),
+            ('Back in Black', 'AC/DC classic', '1980-07-25'),
+            ('Rumours', 'Fleetwood Mac classic', '1977-02-04')
+        ]
+
+        # Manually assign UUIDs for songs
+        song_id_map = {
+            'Stairway to Heaven': '88888888-8888-8888-8888-888888888888',
+            'Bohemian Rhapsody': '99999999-9999-9999-9999-999999999999',
+            'Metal Gear Solid 3 Theme': '00000000-0000-0000-0000-000000000000',
+            'Kiss of Death': '11111111-1111-1111-1111-111111111111',
+            'All Along the Watchtower': '22222222-2222-2222-2222-222222222222',
+            'Sweet Child O Mine': '33333333-3333-3333-3333-333333333333',
+            'Lose Yourself': '44444444-4444-4444-4444-444444444444',
+            'Love Will Tear Us Apart': '55555555-5555-5555-5555-555555555555',
+            'One More Time': '66666666-6666-6666-6666-666666666666',
+            'Harvest Moon': '77777777-7777-7777-7777-777777777777',
+            'Hotel California': '88888888-88a8-8888-8888-888888855588',
+            'Nothing Else Matters': '99999999-b999-9999-9999-669999999999'
+        }
+
+        # Manually assign UUIDs for albums
+        album_id_map = {
+            'This Fire': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaa1aaaaaaa',
+            'The Wall': 'bbbbbbbb-bbbb-bbbb-bbbb-bb2bbbbbbbbb',
+            'Evolve': 'cccccccc-cccc-cccc-cccc-ccccc3cccccc',
+            'The Division Bell': 'dddddddd-dddd-dddd-dd4d-dddddddddddd',
+            'Led Zeppelin IV': 'eeeeeeee-eeee-eeee-eeee-eeeee5eeeeee',
+            'A Night at the Opera': 'ffffffff-ffff-ffff-ffff-fff6ffffffff',
+            'Master of Puppets': '11111111-1111-1111-1111-111141111111',
+            'Beethoven: Complete Sonatas': '22222222-2222-2222-2122-222222222222',
+            'The Blueprint': '33333333-3333-3333-3333-333433333333',
+            'Harvest': '44444444-4444-4444-4444-544444444444',
+            'Unknown Pleasures': '55555555-5555-5555-5555-555155555555',
+            'Discovery': '66666666-6666-6666-6666-666666666626',
+            'Physical Graffiti': '77777777-7777-7777-7777-733777777777',
+            'Imagine': '88888888-8888-8888-8888-888858888888',
+            'Hotel California': '99999999-9999-9999-9999-999199999999',
+            'Thriller': '00000000-0000-0000-0000-000000000900',
+            'Nevermind': 'aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbcbb',
+            'Dangerous': 'bbbbbbbb-cccc-cccc-cccc-cccccccgcccc',
+            'Back in Black': 'cccccccc-dddd-dddd-dddd-ddfddddddddd',
+            'Rumours': 'dddddddd-eeee-eeee-eeee-eeeeedeeeeee'
+        }
+
+        artists = [
+            ('John Lennon', 'UK', 'Vocals'),
+            ('Paul McCartney', 'UK', 'Bass'),
+            ('George Harrison', 'UK', 'Guitar'),
+            ('Ringo Starr', 'UK', 'Drums'),
+            ('Freddie Mercury', 'UK', 'Vocals'),
+            ('Brian May', 'UK', 'Guitar'),
+            ('Roger Taylor', 'UK', 'Drums'),
+            ('John Deacon', 'UK', 'Bass'),
+            ('Kurt Cobain', 'USA', 'Vocals'),
+            ('Axl Rose', 'USA', 'Vocals'),
+            ('Slash', 'USA', 'Guitar'),
+            ('Robert Plant', 'UK', 'Vocals'),
+            ('Jimmy Page', 'UK', 'Guitar'),
+            ('Mick Jagger', 'UK', 'Vocals'),
+            ('Keith Richards', 'UK', 'Guitar'),
+            ('Bono', 'Ireland', 'Vocals'),
+            ('The Edge', 'Ireland', 'Guitar'),
+            ('Chris Martin', 'UK', 'Vocals'),
+            ('Thom Yorke', 'UK', 'Vocals'),
+            ('Eddie Vedder', 'USA', 'Vocals'),
+            ('John Paul Jones', 'UK', 'Bass'),
+            ('John Bonham', 'UK', 'Drums'),
+            ('Syd Barrett', 'UK', 'Guitar'),
+            ('Roger Waters', 'UK', 'Bass'),
+            ('David Gilmour', 'UK', 'Guitar'),
+            ('Nick Mason', 'UK', 'Drums'),
+            ('Richard Wright', 'UK', 'Keyboard'),
+            ('James Hetfield', 'USA', 'Vocals'),
+            ('Lars Ulrich', 'Denmark', 'Drums'),
+            ('Kirk Hammett', 'USA', 'Guitar'),
+            ('Robert Trujillo', 'USA', 'Bass'),
+            ('Don Henley', 'USA', 'Vocals'),
+            ('Glenn Frey', 'USA', 'Guitar'),
+            ('Joe Walsh', 'USA', 'Guitar'),
+            ('Randy Meisner', 'USA', 'Bass'),
+            ('Don Felder', 'USA', 'Guitar'),
+            ('Mick Fleetwood', 'UK', 'Drums'),
+            ('John McVie', 'UK', 'Bass'),
+            ('Christine McVie', 'UK', 'Keyboard'),
+            ('Lindsey Buckingham', 'USA', 'Guitar'),
+            ('Stevie Nicks', 'USA', 'Vocals'),
+            ('Krist Novoselic', 'USA', 'Bass'),
+            ('Dave Grohl', 'USA', 'Drums')
+        ]
+
+        # Manually assign UUIDs for artists
+        artist_id_map = {
+            'John Lennon': '44444444-4444-4444-4444-444444444441',
+            'Paul McCartney': '55555555-5555-5555-5555-555555555552',
+            'George Harrison': '66666666-6666-6666-6666-666666666663',
+            'Ringo Starr': '77777777-7777-7777-7777-777777774777',
+            'Freddie Mercury': '88888888-8888-8888-8888-888858888888',
+            'Brian May': '99999999-9999-9999-9999-999999997999',
+            'Roger Taylor': '00000000-0000-0000-0000-000008000000',
+            'John Deacon': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaa9aaaaa',
+            'Kurt Cobain': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbb4bbbbb',
+            'Axl Rose': 'cccccccc-cccc-cccc-cccc-ccccccccc5cc',
+            'Slash': 'dddddddd-dddd-dddd-dddd-ddddddd4dddd',
+            'Robert Plant': 'eeeeeeee-eeee-eeee-eeee-eee2eeeeeeee',
+            'Jimmy Page': 'ffffffff-ffff-ffff-ffff-fffffff1ffff',
+            'Mick Jagger': '11111111-1111-1111-1111-111111112111',
+            'Keith Richards': '22222222-2222-2222-2222-222221222222',
+            'Bono': '33333333-3333-3333-3333-333333333533',
+            'The Edge': '44444444-4444-4444-4444-447444444444',
+            'Chris Martin': '55555555-5555-5555-5555-585555555555',
+            'Thom Yorke': '66666666-6666-6666-6666-666669666666',
+            'Eddie Vedder': '77777777-7777-7777-7777-777771777777',
+            'John Paul Jones': '88808888-8888-8888-8888-888888888888',
+            'John Bonham': '999999a9-9999-9999-9999-999999999999',
+            'Syd Barrett': '000000b0-0000-0000-0000-000000000000',
+            'Roger Waters': '111111c1-1111-1111-1111-111111111111',
+            'David Gilmour': '22222222-2g22-2222-2222-222222222222',
+            'Nick Mason': '33333333-3333-3e33-3333-333333333333',
+            'Richard Wright': '44444444-4444-44f4-4444-444444444444',
+            'James Hetfield': '55555555-5555-1555-5555-555555555555',
+            'Lars Ulrich': '66666666-6666-6666-6666-622666666666',
+            'Kirk Hammett': '77777777-7777-7777-7777-777777733777',
+            'Robert Trujillo': '88888888-8888-8888-8488-888888888888',
+            'Don Henley': '99999999-9999-9999-9599-999999999999',
+            'Glenn Frey': '00000000-0000-0060-0000-000000000000',
+            'Joe Walsh': '11111111-1111-1711-1111-111111111111',
+            'Randy Meisner': '22222222-2822-2222-2222-222222222222',
+            'Don Felder': '33333333-3333-3933-3333-333333333333',
+            'Mick Fleetwood': '44444444-4404-4444-4444-444444444444',
+            'John McVie': '55555555-5555-5515-5555-555555555555',
+            'Christine McVie': '66666666-6666-6666-6266-666666666666',
+            ('Lindsey Buckingham', 'USA', 'Guitar'): '77777777-7377-7777-7777-777777777777',
+            ('Stevie Nicks', 'USA', 'Vocals'): '88888888-8888-8a88-8888-888888888888',
+            ('Krist Novoselic', 'USA', 'Bass'): '99999999-9999-99c9-9999-999999999999',
+            ('Dave Grohl', 'USA', 'Drums'): '00000000-0000-0000-0000-0000d0000000'
+        }
+
+
+        groups = [
+            ('The Beatles', 4, '1960-01-01'),
+            ('Queen', 4, '1970-01-01'),
+            ('Pink Floyd', 5, '1965-01-01'),
+            ('Metallica', 4, '1981-01-01'),
+            ('Led Zeppelin', 4, '1968-01-01'),
+            ('Nirvana', 3, '1987-01-01'),
+            ('AC/DC', 5, '1973-01-01'),
+            ('Eagles', 5, '1971-01-01'),
+            ('Fleetwood Mac', 5, '1967-01-01'),
+            ('The Rolling Stones', 5, '1962-01-01'),
+            ('Guns N Roses', 6, '1985-01-01'),
+            ('Black Sabbath', 4, '1968-01-01'),
+            ('Joy Division', 4, '1976-01-01'),
+            ('Daft Punk', 2, '1993-01-01'),
+            ('Red Hot Chili Peppers', 4, '1983-01-01'),
+            ('Radiohead', 5, '1985-01-01'),
+            ('U2', 4, '1976-01-01'),
+            ('Coldplay', 4, '1996-01-01'),
+            ('Linkin Park', 6, '1996-01-01'),
+            ('Green Day', 3, '1987-01-01')
+        ]
+        # Manually assign UUIDs for music groups
+        group_id_map = {
+            'The Beatles': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+            'Queen': 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+            'Pink Floyd': 'dddddddd-dddd-dddd-dddd-dddddddddddd',
+            'Metallica': 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+            'Led Zeppelin': 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+            'Nirvana': '11111111-1111-1111-1111-111111111111',
+            'AC/DC': '22222222-2222-2222-2222-222222222222',
+            'Eagles': '33333333-3333-3333-3333-333333333333',
+            'Fleetwood Mac': '44444444-4444-4444-4444-444444444444',
+            'The Rolling Stones': '55555555-5555-5555-5555-555555555555',
+            'Guns N Roses': '66666666-6666-6666-6666-666666666666',
+            'Black Sabbath': '77777777-7777-7777-7777-777777777777',
+            'Joy Division': '88888888-8888-8888-8888-888888888888',
+            'Daft Punk': '99999999-9999-9999-9999-999999999999',
+            'Red Hot Chili Peppers': '00000000-0000-0000-0000-000000000000',
+            'Radiohead': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1',
+            'U2': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2',
+            'Coldplay': 'cccccccc-cccc-cccc-cccc-ccccccccccc3',
+            'Linkin Park': 'dddddddd-dddd-dddd-dddd-ddddddddddd4',
+            'Green Day': 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee5'
+        }
+
+        # Manually assign UUIDs for genres
+        genre_id_map = {
+            'Rock': 1,
+            'Pop': 2,
+            'Jazz': 3,
+            'Classical': 4,
+            'Hip Hop': 5,
+            'Rap': 6,
+            'Electronic': 7,
+            'Indie': 8,
+            'Folk': 9,
+            'Metal': 10,
+            'Blues': 11,
+            'Reggae': 12,
+            'Country': 13,
+            'Soul': 14,
+            'Punk': 15,
+            'Disco': 16,
+            'Funk': 17,
+            'R&B': 18,
+            'Latin': 19,
+            'Alternative': 20
+        }
+
+        followers = [
+            ('Tunceredits', '345math'),
+            ('Tunceredits', 'EFCK'),
+            ('345math', 'Batman'),
+            ('345math', 'Charlie'),
+            ('EFCK', 'mgs6'),
+            ('EFCK', 'infinityedge'),
+            ('Batman', 'franxx'),
+            ('Batman', 'rockson'),
+            ('Charlie', '800kmid'),
+            ('Charlie', 'musiclover'),
+            ('mgs6', 'jazzcat'),
+            ('mgs6', 'rocknroller'),
+            ('infinityedge', 'beatmaker'),
+            ('infinityedge', 'classicfan'),
+            ('franxx', 'rapperfan'),
+            ('franxx', 'livemusic'),
+            ('rockson', 'vinyladdict'),
+            ('rockson', 'concertgoer'),
+            ('800kmid', 'producer'),
+            ('800kmid', 'Tunceredits')
+        ]
+
+        # Define album_info_data with song track numbers
+        album_info_data = [
+            # Led Zeppelin IV
+            (album_id_map['Led Zeppelin IV'], song_id_map['Stairway to Heaven'], 4),
+            
+            # A Night at the Opera
+            (album_id_map['A Night at the Opera'], song_id_map['Bohemian Rhapsody'], 11),
+            
+            # Hotel California
+            (album_id_map['Hotel California'], song_id_map['Hotel California'], 2),
+            
+            # Master of Puppets
+            (album_id_map['Master of Puppets'], song_id_map['Nothing Else Matters'], 8),
+            
+            # Discovery
+            (album_id_map['Discovery'], song_id_map['One More Time'], 1),
+            
+            # Unknown Pleasures
+            (album_id_map['Unknown Pleasures'], song_id_map['Love Will Tear Us Apart'], 5),
+            
+            # Harvest
+            (album_id_map['Harvest'], song_id_map['Harvest Moon'], 3)
+        ]
+
+        # Define album_group_data with album and group mappings
+        album_group_data = [
+            # The Beatles albums
+            (album_id_map['Imagine'], group_id_map['The Beatles']),
+            
+            # Queen albums
+            (album_id_map['A Night at the Opera'], group_id_map['Queen']),
+            
+            # Led Zeppelin albums
+            (album_id_map['Led Zeppelin IV'], group_id_map['Led Zeppelin']),
+            (album_id_map['Physical Graffiti'], group_id_map['Led Zeppelin']),
+            
+            # Pink Floyd albums
+            (album_id_map['The Wall'], group_id_map['Pink Floyd']),
+            (album_id_map['The Division Bell'], group_id_map['Pink Floyd']),
+            
+            # Metallica albums
+            (album_id_map['Master of Puppets'], group_id_map['Metallica']),
+            
+            # Eagles albums
+            (album_id_map['Hotel California'], group_id_map['Eagles']),
+            
+            # Fleetwood Mac albums
+            (album_id_map['Rumours'], group_id_map['Fleetwood Mac']),
+            
+            # Nirvana albums
+            (album_id_map['Nevermind'], group_id_map['Nirvana'])
+        ]
+
+        # Define music_group_data with group details
+        music_group_data = [
+            # Group name, number of members, creation date
+            (group_id_map['The Beatles'], 'The Beatles', 4, '1960-08-01'),
+            (group_id_map['Queen'], 'Queen', 4, '1970-06-27'),
+            (group_id_map['Led Zeppelin'], 'Led Zeppelin', 4, '1968-09-25'),
+            (group_id_map['Pink Floyd'], 'Pink Floyd', 5, '1965-01-01'),
+            (group_id_map['Metallica'], 'Metallica', 4, '1981-10-28'),
+            (group_id_map['Eagles'], 'Eagles', 5, '1971-01-01'),
+            (group_id_map['Fleetwood Mac'], 'Fleetwood Mac', 5, '1967-07-01'),
+            (group_id_map['Nirvana'], 'Nirvana', 3, '1987-01-01')
+        ]
+
+        # Define genre_data with song and genre mappings
+        genre_data = [
+            (song_id_map['Stairway to Heaven'], 1),  # Rock
+            (song_id_map['Bohemian Rhapsody'], 1),  # Rock
+            (song_id_map['Metal Gear Solid 3 Theme'], 7),  # Electronic
+            (song_id_map['Kiss of Death'], 8),  # Indie
+            (song_id_map['All Along the Watchtower'], 1),  # Rock
+            (song_id_map['Sweet Child O Mine'], 1),  # Rock
+            (song_id_map['Lose Yourself'], 6),  # Rap
+            (song_id_map['Love Will Tear Us Apart'], 8),  # Indie
+            (song_id_map['One More Time'], 7),  # Electronic
+            (song_id_map['Harvest Moon'], 9),  # Folk
+            (song_id_map['Hotel California'], 1),  # Rock
+            (song_id_map['Nothing Else Matters'], 1)  # Rock
+        ]
+
+
+        # Define history_data with user and song mappings
+        history_data = [
+            (user_id_map['Tunceredits'], song_id_map['Stairway to Heaven'], '2023-01-01 10:00:00'),
+            (user_id_map['345math'], song_id_map['Bohemian Rhapsody'], '2023-01-02 11:00:00'),
+            (user_id_map['EFCK'], song_id_map['Metal Gear Solid 3 Theme'], '2023-01-03 12:00:00'),
+            (user_id_map['Batman'], song_id_map['Kiss of Death'], '2023-01-04 13:00:00'),
+            (user_id_map['Charlie'], song_id_map['All Along the Watchtower'], '2023-01-05 14:00:00'),
+            (user_id_map['mgs6'], song_id_map['Sweet Child O Mine'], '2023-01-06 15:00:00'),
+            (user_id_map['infinityedge'], song_id_map['Lose Yourself'], '2023-01-07 16:00:00'),
+            (user_id_map['franxx'], song_id_map['Love Will Tear Us Apart'], '2023-01-08 17:00:00'),
+            (user_id_map['rockson'], song_id_map['One More Time'], '2023-01-09 18:00:00'),
+            (user_id_map['800kmid'], song_id_map['Harvest Moon'], '2023-01-10 19:00:00'),
+            (user_id_map['musiclover'], song_id_map['Hotel California'], '2023-01-11 20:00:00'),
+            (user_id_map['jazzcat'], song_id_map['Nothing Else Matters'], '2023-01-12 21:00:00')
+        ]
+
+        # Define group_artist_data with group and artist mappings
+        group_artist_data = [
+            (group_id_map['The Beatles'], artist_id_map['John Lennon']),
+            (group_id_map['The Beatles'], artist_id_map['Paul McCartney']),
+            (group_id_map['The Beatles'], artist_id_map['George Harrison']),
+            (group_id_map['The Beatles'], artist_id_map['Ringo Starr']),
+            (group_id_map['Queen'], artist_id_map['Freddie Mercury']),
+            (group_id_map['Queen'], artist_id_map['Brian May']),
+            (group_id_map['Queen'], artist_id_map['Roger Taylor']),
+            (group_id_map['Queen'], artist_id_map['John Deacon']),
+            (group_id_map['Led Zeppelin'], artist_id_map['Robert Plant']),
+            (group_id_map['Led Zeppelin'], artist_id_map['Jimmy Page']),
+            (group_id_map['Led Zeppelin'], artist_id_map['John Paul Jones']),
+            (group_id_map['Led Zeppelin'], artist_id_map['John Bonham']),
+            (group_id_map['Pink Floyd'], artist_id_map['Syd Barrett']),
+            (group_id_map['Pink Floyd'], artist_id_map['Roger Waters']),
+            (group_id_map['Pink Floyd'], artist_id_map['David Gilmour']),
+            (group_id_map['Pink Floyd'], artist_id_map['Nick Mason']),
+            (group_id_map['Pink Floyd'], artist_id_map['Richard Wright']),
+            (group_id_map['Metallica'], artist_id_map['James Hetfield']),
+            (group_id_map['Metallica'], artist_id_map['Lars Ulrich']),
+            (group_id_map['Metallica'], artist_id_map['Kirk Hammett']),
+            (group_id_map['Metallica'], artist_id_map['Robert Trujillo']),
+            (group_id_map['Eagles'], artist_id_map['Don Henley']),
+            (group_id_map['Eagles'], artist_id_map['Glenn Frey']),
+            (group_id_map['Eagles'], artist_id_map['Joe Walsh']),
+            (group_id_map['Eagles'], artist_id_map['Randy Meisner']),
+            (group_id_map['Eagles'], artist_id_map['Don Felder']),
+            (group_id_map['Fleetwood Mac'], artist_id_map['Mick Fleetwood']),
+            (group_id_map['Fleetwood Mac'], artist_id_map['John McVie']),
+            (group_id_map['Fleetwood Mac'], artist_id_map['Christine McVie'])
+        ]
+
+        # Update account data insertion
+        account_data = []
+        for nickname in nicknames:
+            password = f"password_{nickname}"
+            password_hash = generate_password_hash(password, method='pbkdf2:sha256')
+            parts = password_hash.split('$')
+            salt_string = parts[2]
+            email = f"{nickname.lower()}@example.com"
+            if len(email) > 50:
+                email = f"{nickname.lower()[:40]}@example.com"
+            account_data.append((account_id_map[nickname], email, password_hash, salt_string, get_full_name(nickname), is_subscriber(nickname), '2021-05-01', get_country(nickname), get_sex(nickname), get_language(nickname), get_birth_date(nickname), '2024-01-01T12:00:00'))
+        cursor.executemany(
+            """INSERT INTO Account (account_id, mail, password_hash, password_salt, full_name, is_subscriber, 
+                                   registration_date, country, sex, language, birth_date, last_login) VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            account_data
+        )
+        connection.commit()
+
+        # user data insertion
         print("Inserting users...")
-        
-        # Insert dummy data into the User table - Let the database generate user_ids automatically
-        # Using executemany with placeholders for proper SQLite insertion
         user_data = [
-            ('Tunceredits', 'Pop', None),
-            ('345math', 'Rock', None),
-            ('EFCK', 'Jazz', None),
-            ('Batman', 'Rock', None),
-            ('Charlie', 'Pop', None),
-            ('mgs6', 'Jazz', None),
-            ('infinityedge', 'Rock', None),
-            ('franxx', 'Pop', None),
-            ('rockson', 'Jazz', None),
-            ('800kmid', 'Rap', None),
-            ('musiclover', 'Pop', None),
-            ('jazzcat', 'Jazz', None),
-            ('rocknroller', 'Rock', None),
-            ('beatmaker', 'Hip Hop', None),
-            ('classicfan', 'Classical', None),
-            ('rapperfan', 'Rap', None),
-            ('livemusic', 'Folk', None),
-            ('vinyladdict', 'Indie', None),
-            ('concertgoer', 'Electronic', None),
-            ('producer', 'Pop', None)
+            (account_id_map[nickname], nickname, 'Pop', None) for nickname in nicknames
         ]
         cursor.executemany(
-            "INSERT INTO User (nickname, favorite_genre, user_image) VALUES (?, ?, ?)",
+            "INSERT INTO User (user_id, nickname, favorite_genre, user_image) VALUES (?, ?, ?, ?)",
             user_data
         )
         connection.commit()
-        
-        # Get the generated user_ids to use for Account table
-        print("Retrieving generated user IDs...")
-        cursor.execute("SELECT user_id, nickname FROM User")
-        user_data = cursor.fetchall()
-        
-        # Create a dictionary to map nicknames to user_ids
-        user_id_map = {nickname: user_id for user_id, nickname in user_data}
-        
-        # Print user_id map for debugging
-        print(f"User ID map: {user_id_map}")
-        
-        # Generate password hashes for users
-        print("Inserting accounts...")
-        
-        # Check for existing emails first
-        cursor.execute("SELECT mail FROM Account")
-        existing_emails = {row[0] for row in cursor.fetchall()}
-        print(f"Found {len(existing_emails)} existing email addresses")
-        
-        for nickname in user_id_map.keys():
-            user_id = user_id_map[nickname]
-            # Create a simple password (in a real app, these would be properly secured)
-            password = f"password_{nickname}"
-            
-            # For demonstration only: Let werkzeug handle the salt generation automatically
-            # werkzeug.security generate_password_hash already includes salt handling
-            password_hash = generate_password_hash(password, method='pbkdf2:sha256')
-            
-            # Store the salt portion separately for this demo as instructed
-            parts = password_hash.split('$')
-            salt_string = parts[2]
-            
-            # Verify email length doesn't exceed 50 characters
-            email = f"{nickname.lower()}@example.com"
-            if len(email) > 50:
-                email = f"{nickname.lower()[:40]}@example.com"  # Truncate if too long
-                
-            # Skip if email already exists
-            if email in existing_emails:
-                print(f"Account with email {email} already exists, skipping")
-                continue
-                
-            # Current timestamp for last_login using ISO 8601 format
-            last_login = '2024-01-01T12:00:00'
-            
-            try:
-                # Insert into Account table with proper user_id and required fields
-                print(f"Inserting account for {nickname} with user_id {user_id}")
-                cursor.execute("""
-                    INSERT INTO Account (account_id, mail, password_hash, password_salt, full_name, is_subscriber, 
-                                       registration_date, country, sex, language, birth_date, last_login) VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    user_id, 
-                    email,
-                    password_hash, 
-                    salt_string,  # Using direct salt extraction as instructed
-                    get_full_name(nickname), 
-                    is_subscriber(nickname),
-                    '2021-05-01',
-                    get_country(nickname),
-                    get_sex(nickname),
-                    get_language(nickname),
-                    get_birth_date(nickname),
-                    last_login
-                ))
-                # Add email to existing_emails to avoid trying to insert it again if another user has the same email
-                existing_emails.add(email)
-            except sqlite3.Error as e:
-                print(f"Error inserting account for {nickname}: {str(e)}")
-                # Continue with the next account
-        connection.commit()
-        
-        # Insert follower relationships using the user IDs from the map
-        print("Inserting follower relationships...")
-        try:
-            insert_followers(cursor, user_id_map)
-            connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error inserting follower relationships: {str(e)}")
-        
-        # Insert playlists with auto-generated IDs
+
+        # insert playlists
         print("Inserting playlists...")
-        try:
-            insert_playlists(cursor, user_id_map)
-            connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error inserting playlists: {str(e)}")
+        playlist_data = [
+            (playlist_id_map[name], name, desc, user_id_map[creator])
+            for name, desc, creator in playlists
+            if creator in user_id_map and name in playlist_id_map
+        ]
         
-        # Get playlist IDs for later use
-        try:
-            print("Retrieving playlist IDs...")
-            cursor.execute("SELECT playlist_id, playlist_name FROM Playlist")
-            playlist_data = cursor.fetchall()
-            playlist_id_map = {name: p_id for p_id, name in playlist_data}
-        except sqlite3.Error as e:
-            print(f"Error retrieving playlist IDs: {str(e)}")
-            playlist_id_map = {}
-            
-        # Insert songs with auto-generated IDs
+        cursor.executemany(
+            "INSERT INTO Playlist (playlist_id, playlist_name, playlist_description, playlist_image, creator_id) VALUES (?, ?, ?, NULL, ?)",
+            playlist_data
+        )
+        connection.commit()
+
+        # insert songs
         print("Inserting songs...")
-        try:
-            insert_songs(cursor)
-            connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error inserting songs: {str(e)}")
-        
-        # Get song IDs for later use
-        try:
-            print("Retrieving song IDs...")
-            cursor.execute("SELECT song_id, song_name FROM Song")
-            song_data = cursor.fetchall()
-            song_id_map = {name: s_id for s_id, name in song_data}
-        except sqlite3.Error as e:
-            print(f"Error retrieving song IDs: {str(e)}")
-            song_id_map = {}
-            
-        # Associate playlists with users
-        if playlist_id_map and user_id_map:
-            print("Inserting playlist-user relationships...")
-            try:
-                insert_playlist_users(cursor, user_id_map, playlist_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting playlist-user relationships: {str(e)}")
-        
-        # Associate songs with playlists
-        if playlist_id_map and song_id_map:
-            print("Inserting playlist-song relationships...")
-            try:
-                insert_playlist_songs(cursor, playlist_id_map, song_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting playlist-song relationships: {str(e)}")
-            
-        # Add user likes
-        if user_id_map and song_id_map:
-            print("Inserting user likes...")
-            try:
-                insert_user_likes(cursor, user_id_map, song_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting user likes: {str(e)}")
-            
-        # Insert random genres into GenreFields
+        valid_song_data = [
+            (song_id_map[name], name, time, None, None)
+            for name, time in songs
+            if name in song_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Song (song_id, song_name, song_time, song_image, audio) VALUES (?, ?, ?, ?, ?)",
+            valid_song_data
+        )
+        connection.commit()
+
+        # Manually filter valid album data
+        print("Inserting albums...")
+        valid_album_data = [
+            (album_id_map[name], name, about, None, date)
+            for name, about, date in albums
+            if name in album_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Album (album_id, album_name, about, album_image, release_date) VALUES (?, ?, ?, ?, ?)",
+            valid_album_data
+        )
+        connection.commit()
+
+        # insert artists
+        print("Inserting artists...")
+        valid_artist_data = [
+            (artist_id_map[name], name, country, role)
+            for name, country, role in artists
+            if name in artist_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Artist (artist_id, full_name, origin_country, instrument) VALUES (?, ?, ?, ?)",
+            valid_artist_data
+        )
+        connection.commit()
+
+        # insert followers
+        print("Inserting followers...")
+        followers_data = [
+            (user_id_map[follower], user_id_map[followee])
+            for follower, followee in followers
+            if follower in user_id_map and followee in user_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)",
+            followers_data
+        )
+        connection.commit()
+
+        # Insert playlist songs
+        print("Inserting playlist songs...")
+        print(cursor.execute("SELECT * FROM Playlist").fetchall())
+        print(cursor.execute("SELECT * FROM Song").fetchall())
+        valid_playlist_song_data = [
+            (playlist_id_map[playlist], song_id_map[song])
+            for playlist, song in playlist_song_data
+            if playlist in playlist_id_map and song in song_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Playlist_Song (playlist_id, song_id) VALUES (?, ?)",
+            valid_playlist_song_data
+        )
+        connection.commit()
+
+        # Insert playlist users
+        print("Inserting playlist users...")
+        valid_playlist_user_data = [
+            (user_id_map[user], playlist_id_map[playlist])
+            for user, playlist in playlist_user_data
+            if user in user_id_map and playlist in playlist_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO Playlist_User (user_id, playlist_id) VALUES (?, ?)",
+            valid_playlist_user_data
+        )
+        connection.commit()
+
+        # Insert user likes
+        print("Inserting user likes...")
+        valid_user_likes_data = [
+            (user_id_map[user], song_id_map[song])
+            for user, song in User_likes_data
+            if user in user_id_map and song in song_id_map
+        ]
+        cursor.executemany(
+            "INSERT INTO UserLikes (user_id, song_id) VALUES (?, ?)",
+            valid_user_likes_data
+        )
+        connection.commit()
+
+
+        # Insert into the GenreFields table
         print("Inserting genres into GenreFields...")
         genres = [
             'Rock', 'Pop', 'Jazz', 'Classical', 'Hip Hop', 'Rap', 'Electronic', 'Indie', 'Folk', 'Metal',
             'Blues', 'Reggae', 'Country', 'Soul', 'Punk', 'Disco', 'Funk', 'R&B', 'Latin', 'Alternative'
         ]
-
-        # Use executemany for bulk insertion
         cursor.executemany(
             "INSERT INTO GenreFields (genre_name) VALUES (?)",
             [(genre,) for genre in genres]
         )
         connection.commit()
 
-        # Retrieve genre_ids for later use
-        print("Retrieving genre IDs...")
-        cursor.execute("SELECT genre_id, genre_name FROM GenreFields")
-        genre_data = cursor.fetchall()
-        genre_id_map = {name: g_id for g_id, name in genre_data}
+        # insert genre_data
+        print("Inserting genre data...")
+        cursor.executemany(
+            "INSERT INTO Genre (song_id, genre_id) VALUES (?, ?)",
+            genre_data
+        )
+        connection.commit()
 
-        # Generate random entries for the Genre table
-        print("Inserting entries into Genre table...")
+        # insert album_info_data
+        print("Inserting album info data...")
+        cursor.executemany(
+            "INSERT INTO Album_Info (album_id, song_id, track_number) VALUES (?, ?, ?)",
+            album_info_data
+        )
+        connection.commit()
 
-        # Ensure song_id_map and genre_id_map are populated
-        if song_id_map and genre_id_map:
-            genre_entries = []
-            for _ in range(30):
-                song_name = random.choice(list(song_id_map.keys()))
-                genre_name = random.choice(list(genre_id_map.keys()))
-                genre_entries.append((song_id_map[song_name], genre_id_map[genre_name]))
+        # insert album_group_data
+        print(cursor.execute("SELECT * FROM Album").fetchall())
+        print(cursor.execute("SELECT * FROM Group").fetchall())
+        print("Inserting album group data...")
+        cursor.executemany(
+            "INSERT INTO Album_Group (album_id, group_id) VALUES (?, ?)",
+            album_group_data
+        )
+        connection.commit()
 
-            # Use executemany for bulk insertion
-            cursor.executemany(
-                "INSERT INTO Genre (song_id, genre_id) VALUES (?, ?)",
-                genre_entries
-            )
-            connection.commit()
-        else:
-            print("Error: song_id_map or genre_id_map is empty.")
-        
-        # Add albums
-        print("Inserting albums...")
-        try:
-            insert_albums(cursor)
-            connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error inserting albums: {str(e)}")
-            
-        # Get album IDs for later use
-        try:
-            print("Retrieving album IDs...")
-            cursor.execute("SELECT album_id, album_name FROM Album")
-            album_data = cursor.fetchall()
-            album_id_map = {name: a_id for a_id, name in album_data}
-        except sqlite3.Error as e:
-            print(f"Error retrieving album IDs: {str(e)}")
-            album_id_map = {}
-        
-        # Associate songs with albums
-        if album_id_map and song_id_map:
-            print("Inserting album info (album-song relationships)...")
-            try:
-                insert_album_info(cursor, album_id_map, song_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting album-song relationships: {str(e)}")
-            
-        # Add music groups
-        print("Inserting music groups...")
-        try:
-            insert_music_groups(cursor)
-            connection.commit()
-        except sqlite3.Error as e:
-            print(f"Error inserting music groups: {str(e)}")
-            
-        # Get group IDs for later use
-        try:
-            print("Retrieving group IDs...")
-            cursor.execute("SELECT group_id, group_name FROM MusicGroup")
-            group_data = cursor.fetchall()
-            group_id_map = {name: g_id for g_id, name in group_data}
-        except sqlite3.Error as e:
-            print(f"Error retrieving group IDs: {str(e)}")
-            group_id_map = {}
-            
-        # Add artists to groups
-        if group_id_map:
-            print("Inserting artists...")
-            try:
-                insert_artists(cursor)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting artists: {str(e)}")
-            
-        # Associate albums with groups
-        if album_id_map and group_id_map:
-            print("Inserting album-group relationships...")
-            try:
-                insert_album_groups(cursor, album_id_map, group_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting album-group relationships: {str(e)}")
-            
-        # Insert listening history
-        if user_id_map and song_id_map:
-            print("Inserting listening history...")
-            try:
-                insert_history(cursor, user_id_map, song_id_map)
-                connection.commit()
-            except sqlite3.Error as e:
-                print(f"Error inserting listening history: {str(e)}")
-                
+        # insert music_group_data
+        print("Inserting music group data...")
+        cursor.executemany(
+            "INSERT INTO MusicGroup (group_id, group_name, number_of_members, creation_date) VALUES (?, ?, ?, ?)",
+            music_group_data
+        )
+        connection.commit()
+
+        # insert group_artist_data
+        print("Inserting group artist data...")
+        cursor.executemany(
+            "INSERT INTO GroupArtist (group_id, artist_id) VALUES (?, ?)",
+            group_artist_data
+        )
+        connection.commit()
+
+        # insert history_data
+        print("Inserting history data...")
+        cursor.executemany(
+            "INSERT INTO History (user_id, song_id, start_time) VALUES (?, ?, ?)",
+            history_data
+        )
+        connection.commit()
+
+        # Add missing artists to the Artist table
+        missing_artists = [
+            ('John Paul Jones', 'UK', 'Bass'),
+            ('John Bonham', 'UK', 'Drums'),
+            ('Syd Barrett', 'UK', 'Guitar'),
+            ('Roger Waters', 'UK', 'Bass'),
+            ('David Gilmour', 'UK', 'Guitar'),
+            ('Nick Mason', 'UK', 'Drums'),
+            ('Richard Wright', 'UK', 'Keyboard'),
+            ('James Hetfield', 'USA', 'Vocals'),
+            ('Lars Ulrich', 'Denmark', 'Drums'),
+            ('Kirk Hammett', 'USA', 'Guitar'),
+            ('Robert Trujillo', 'USA', 'Bass'),
+            ('Don Henley', 'USA', 'Vocals'),
+            ('Glenn Frey', 'USA', 'Guitar'),
+            ('Randy Meisner', 'USA', 'Bass'),
+            ('Don Felder', 'USA', 'Guitar'),
+            ('Mick Fleetwood', 'UK', 'Drums'),
+            ('John McVie', 'UK', 'Bass'),
+            ('Christine McVie', 'UK', 'Keyboard'),
+            ('Stevie Nicks', 'USA', 'Vocals'),
+            ('Krist Novoselic', 'USA', 'Bass'),
+            ('Dave Grohl', 'USA', 'Drums')
+        ]
+
+        # Insert missing artists
+        print("Inserting missing artists...")
+        cursor.executemany(
+            "INSERT INTO Artist (full_name, origin_country, instrument) VALUES (?, ?, ?)",
+            missing_artists
+        )
+        connection.commit()
+
         print("Dummy data insertion completed!")
                 
     except Exception as e:
@@ -454,482 +893,3 @@ def get_birth_date(nickname):
     }
     return birth_date_mapping.get(nickname, '2000-01-01')
 
-# Helper functions to insert related data
-def insert_followers(cursor, user_id_map):
-    # Examples of follower relationships
-    follower_pairs = [
-        ('Tunceredits', '345math'),
-        ('Tunceredits', 'EFCK'),
-        ('345math', 'Tunceredits'),
-        ('Batman', 'Tunceredits'),
-        ('Charlie', 'Tunceredits'),
-        ('mgs6', 'Tunceredits'),
-        ('infinityedge', 'Tunceredits'),
-        ('franxx', 'Tunceredits'),
-        ('rockson', 'Tunceredits'),
-        ('800kmid', 'Tunceredits'),
-        ('musiclover', 'rockson'),
-        ('jazzcat', 'EFCK'),
-        ('rocknroller', 'Batman'),
-        ('beatmaker', 'infinityedge'),
-        ('classicfan', 'Charlie'),
-        ('rapperfan', '800kmid'),
-        ('livemusic', 'mgs6'),
-        ('vinyladdict', 'franxx'),
-        ('concertgoer', '345math'),
-        ('producer', 'Tunceredits'),
-        ('Tunceredits', 'musiclover'),
-        ('345math', 'jazzcat'),
-        ('EFCK', 'rocknroller'),
-        ('Batman', 'beatmaker'),
-        ('Charlie', 'classicfan'),
-        ('mgs6', 'rapperfan'),
-        ('infinityedge', 'livemusic'),
-        ('franxx', 'vinyladdict'),
-        ('rockson', 'concertgoer'),
-        ('800kmid', 'producer')
-    ]
-    
-    # Prepare data for executemany
-    follower_data = [(user_id_map[follower], user_id_map[followee]) for follower, followee in follower_pairs]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Follower (user_id_1, user_id_2) VALUES (?, ?)",
-        follower_data
-    )
-
-def insert_playlists(cursor, user_id_map):
-    # Define list of playlists to insert
-    playlists = [
-        ('AGLAMA GARANTILI KARISIK', 'A playlist of popular rock songs', 'Tunceredits'),
-        ('Lofi', 'Student dying musics', '345math'),
-        ('Zam yaparken dinlemelik müzikler', 'Economic boost songs', 'EFCK'),
-        ('Jazz Classics', 'The best of jazz music', 'jazzcat'),
-        ('Rock Anthems', 'Classic rock hits', 'rocknroller'),
-        ('Hip Hop Beats', 'Fresh beats for freestyle', 'beatmaker'),
-        ('Classical Masterpieces', 'The greatest classical compositions', 'classicfan'),
-        ('Rap Essentials', 'Essential tracks from rap legends', 'rapperfan'),
-        ('Folk Collection', 'Acoustic folk classics', 'livemusic'),
-        ('Indie Discoveries', 'Underground indie gems', 'vinyladdict'),
-        ('Electronic Mix', 'Electronic dance music mix', 'concertgoer'),
-        ('Pop Hits 2024', 'Current pop chart toppers', 'producer'),
-        ('Workout Mix', 'High energy songs for exercise', 'Batman'),
-        ('Chill Vibes', 'Relaxing music for downtime', 'Charlie'),
-        ('Gaming Soundtrack', 'Music for gaming sessions', 'mgs6'),
-        ('Road Trip Playlist', 'Songs for the open road', 'infinityedge'),
-        ('Anime Openings', 'Best anime theme songs', 'franxx'),
-        ('Turkish Classics', 'Classic Turkish music collection', 'rockson'),
-        ('Rap Battles', 'Best tracks for rap battles', '800kmid'),
-        ('All Time Favorites', 'Collection of all-time favorite songs', 'musiclover')
-    ]
-    
-    # Prepare data for executemany
-    # For each playlist, get the user_id that corresponds to the creator nickname
-    playlist_data = []
-    for name, desc, creator in playlists:
-        if creator in user_id_map:
-            creator_id = user_id_map[creator]
-            playlist_data.append((name, desc, creator_id))
-        else:
-            print(f"Warning: Creator '{creator}' not found in user_id_map, skipping playlist '{name}'")
-    
-    # Print the SQL statement and data for debugging
-    print(f"Executing INSERT INTO Playlist with {len(playlist_data)} playlists")
-    print(f"Sample data: {playlist_data[0] if playlist_data else 'No data'}")
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Playlist (playlist_name, playlist_description, playlist_image, creator_id) VALUES (?, ?, NULL, ?)",
-        playlist_data
-    )
-
-def insert_songs(cursor):
-    songs = [
-        ('Stairway to Heaven', 482),
-        ('Bohemian Rhapsody', 355),
-        ('Metal Gear Solid 3 Theme', 150),
-        ('Bilgewater', 180),
-        ('Kiss of Death', 240),
-        ('Under the tree', 122),
-        ('800kmid', 120),
-        ('Tunceredits', 210),
-        ('345math', 210),
-        ('Take Me Out', 237),
-        ('All Along the Watchtower', 240),
-        ('Sweet Child O Mine', 356),
-        ('Nothing Else Matters', 386),
-        ('Piano Sonata No. 14', 840),
-        ('99 Problems', 226),
-        ('Lose Yourself', 320),
-        ('Harvest Moon', 312),
-        ('Love Will Tear Us Apart', 218),
-        ('One More Time', 320),
-        ('Kashmir', 508),
-        ('Imagine', 183),
-        ('Hotel California', 390),
-        ('Thriller', 358),
-        ('Smells Like Teen Spirit', 301),
-        ('Billie Jean', 293)
-    ]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Song (song_name, song_time, song_image, audio) VALUES (?, ?, NULL, NULL)",
-        songs
-    )
-
-def insert_playlist_users(cursor, user_id_map, playlist_id_map):
-    relationships = [
-        ('Tunceredits', 'AGLAMA GARANTILI KARISIK'),
-        ('Tunceredits', 'Lofi'),
-        ('Tunceredits', 'Zam yaparken dinlemelik müzikler'),
-        ('345math', 'AGLAMA GARANTILI KARISIK'),
-        ('345math', 'Lofi'),
-        ('EFCK', 'AGLAMA GARANTILI KARISIK'),
-        ('jazzcat', 'Jazz Classics'),
-        ('rocknroller', 'Rock Anthems'),
-        ('beatmaker', 'Hip Hop Beats'),
-        ('musiclover', 'All Time Favorites'),
-        ('Tunceredits', 'Pop Hits 2024'),
-        ('Batman', 'Rock Anthems'),
-        ('Charlie', 'Chill Vibes'),
-        ('infinityedge', 'Road Trip Playlist'),
-        ('franxx', 'Anime Openings'),
-        ('rockson', 'Turkish Classics'),
-        ('800kmid', 'Rap Battles'),
-        ('musiclover', 'Chill Vibes'),
-        ('jazzcat', 'All Time Favorites'),
-        ('producer', 'Electronic Mix')
-    ]
-    
-    # Prepare data for executemany
-    relationship_data = [(user_id_map[user], playlist_id_map[playlist]) for user, playlist in relationships]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Playlist_User (user_id, playlist_id) VALUES (?, ?)",
-        relationship_data
-    )
-
-def insert_playlist_songs(cursor, playlist_id_map, song_id_map):
-    relationships = [
-        ('AGLAMA GARANTILI KARISIK', 'Stairway to Heaven'),
-        ('AGLAMA GARANTILI KARISIK', 'Bohemian Rhapsody'),
-        ('Lofi', 'Metal Gear Solid 3 Theme'),
-        ('Lofi', 'Bilgewater'),
-        ('Zam yaparken dinlemelik müzikler', 'Kiss of Death'),
-        ('Jazz Classics', 'All Along the Watchtower'),
-        ('Rock Anthems', 'Sweet Child O Mine'),
-        ('Rock Anthems', 'Nothing Else Matters'),
-        ('Classical Masterpieces', 'Piano Sonata No. 14'),
-        ('Rap Essentials', '99 Problems'),
-        ('Rap Essentials', 'Lose Yourself'),
-        ('Folk Collection', 'Harvest Moon'),
-        ('Indie Discoveries', 'Love Will Tear Us Apart'),
-        ('Electronic Mix', 'One More Time'),
-        ('Pop Hits 2024', 'Thriller'),
-        ('Pop Hits 2024', 'Billie Jean'),
-        ('Workout Mix', 'Sweet Child O Mine'),
-        ('Chill Vibes', 'Imagine'),
-        ('Gaming Soundtrack', 'Metal Gear Solid 3 Theme'),
-        ('Road Trip Playlist', 'Hotel California')
-    ]
-    
-    # Prepare data for executemany
-    relationship_data = [(playlist_id_map[playlist], song_id_map[song]) for playlist, song in relationships]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Playlist_Song (playlist_id, song_id) VALUES (?, ?)",
-        relationship_data
-    )
-
-def insert_user_likes(cursor, user_id_map, song_id_map):
-    # Define list of user likes
-    likes = [
-        ('Tunceredits', 'Stairway to Heaven'),
-        ('Tunceredits', 'Bohemian Rhapsody'),
-        ('345math', 'Stairway to Heaven'),
-        ('EFCK', 'Metal Gear Solid 3 Theme'),
-        ('Batman', 'Bilgewater'),
-        ('musiclover', 'Imagine'),
-        ('jazzcat', 'All Along the Watchtower'),
-        ('rocknroller', 'Sweet Child O Mine'),
-        ('beatmaker', 'Lose Yourself'),
-        ('classicfan', 'Piano Sonata No. 14'),
-        ('rapperfan', '99 Problems'),
-        ('livemusic', 'Harvest Moon'),
-        ('vinyladdict', 'Love Will Tear Us Apart'),
-        ('concertgoer', 'One More Time'),
-        ('producer', 'Thriller'),
-        ('Tunceredits', 'Hotel California'),
-        ('345math', 'Nothing Else Matters'),
-        ('EFCK', 'Imagine'),
-        ('Charlie', 'Billie Jean'),
-        ('mgs6', 'Kashmir')
-    ]
-    
-    # Prepare data for executemany
-    like_data = [(user_id_map[user], song_id_map[song]) for user, song in likes]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO UserLikes (user_id, song_id) VALUES (?, ?)",
-        like_data
-    )
-
-def insert_albums(cursor):
-    albums = [
-        ('This Fire', 'An amazing album', '2020-01-01'),
-        ('The Wall', 'A classic album', '1979-11-30'),
-        ('Evolve', 'Modern rock album', '2017-06-23'),
-        ('The Division Bell', 'Pink Floyd album', '1994-03-28'),
-        ('Led Zeppelin IV', 'Classic rock album', '1971-11-08'),
-        ('A Night at the Opera', 'Queen masterpiece', '1975-11-21'),
-        ('Master of Puppets', 'Metallica classic', '1986-03-03'),
-        ('Beethoven: Complete Sonatas', 'Classical masterpieces', '1950-01-01'),
-        ('The Blueprint', 'Jay-Z classic', '2001-09-11'),
-        ('Harvest', 'Neil Young folk album', '1972-02-01'),
-        ('Unknown Pleasures', 'Joy Division debut', '1979-06-15'),
-        ('Discovery', 'Daft Punk electronic classic', '2001-03-12'),
-        ('Physical Graffiti', 'Led Zeppelin double album', '1975-02-24'),
-        ('Imagine', 'John Lennon classic', '1971-09-09'),
-        ('Hotel California', 'Eagles masterpiece', '1976-12-08'),
-        ('Thriller', 'Michael Jackson bestseller', '1982-11-30'),
-        ('Nevermind', 'Nirvana breakthrough', '1991-09-24'),
-        ('Dangerous', 'Michael Jackson album', '1991-11-26'),
-        ('Back in Black', 'AC/DC classic', '1980-07-25'),
-        ('Rumours', 'Fleetwood Mac classic', '1977-02-04')
-    ]
-    
-    # Check for existing albums first to avoid unique constraint error
-    cursor.execute("SELECT album_name FROM Album")
-    existing_albums = {row[0] for row in cursor.fetchall()}
-    
-    # Filter out albums that already exist in the database
-    new_albums = [(name, about, date) for name, about, date in albums if name not in existing_albums]
-    
-    if not new_albums:
-        print("No new albums to insert - all albums already exist")
-        return
-    
-    print(f"Inserting {len(new_albums)} new albums")
-    if new_albums:
-        print(f"Sample album: {new_albums[0]}")
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Album (album_name, about, album_image, release_date) VALUES (?, ?, NULL, ?)",
-        new_albums
-    )
-
-def insert_album_info(cursor, album_id_map, song_id_map):
-    # Define album tracks with unique track numbers per album
-    tracks = [
-        ('This Fire', 'Stairway to Heaven', 1),
-        ('This Fire', 'Kiss of Death', 2),
-        ('The Wall', 'Bohemian Rhapsody', 1),
-        ('The Wall', 'Take Me Out', 2),
-        ('Evolve', 'Metal Gear Solid 3 Theme', 1),
-        ('Evolve', '800kmid', 2),
-        ('The Division Bell', 'Bilgewater', 1),
-        ('The Division Bell', 'Tunceredits', 2),
-        ('Led Zeppelin IV', 'Stairway to Heaven', 1),
-        ('Led Zeppelin IV', 'Kashmir', 2),
-        ('A Night at the Opera', 'Bohemian Rhapsody', 1),
-        ('Master of Puppets', 'Nothing Else Matters', 1),
-        ('Beethoven: Complete Sonatas', 'Piano Sonata No. 14', 1),
-        ('The Blueprint', '99 Problems', 1),
-        ('Harvest', 'Harvest Moon', 1),
-        ('Unknown Pleasures', 'Love Will Tear Us Apart', 1),
-        ('Discovery', 'One More Time', 1),
-        ('Physical Graffiti', 'Kashmir', 1),
-        ('Imagine', 'Imagine', 1),
-        ('Hotel California', 'Hotel California', 1),
-        ('Thriller', 'Thriller', 1),
-        ('Thriller', 'Billie Jean', 2),
-        ('Nevermind', 'Smells Like Teen Spirit', 1),
-        ('Dangerous', 'Billie Jean', 1),
-        ('Back in Black', 'Sweet Child O Mine', 1),
-        ('Rumours', 'Love Will Tear Us Apart', 1)
-    ]
-    
-    # Check for duplicate track numbers within the same album
-    album_tracks = {}
-    for album, song, track_num in tracks:
-        if album not in album_tracks:
-            album_tracks[album] = set()
-        if track_num in album_tracks[album]:
-            print(f"Warning: Duplicate track number {track_num} for album '{album}'")
-        album_tracks[album].add(track_num)
-    
-    # Prepare data for executemany, handling missing albums or songs
-    album_info_data = []
-    for album, song, track_num in tracks:
-        if album in album_id_map and song in song_id_map:
-            album_info_data.append((album_id_map[album], song_id_map[song], track_num))
-        else:
-            if album not in album_id_map:
-                print(f"Warning: Album '{album}' not found in album_id_map, skipping")
-            if song not in song_id_map:
-                print(f"Warning: Song '{song}' not found in song_id_map, skipping")
-    
-    # Print debugging information
-    print(f"Inserting {len(album_info_data)} album-song relationships")
-    if album_info_data:
-        print(f"Sample data: {album_info_data[0]}")
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Album_Info (album_id, song_id, track_number) VALUES (?, ?, ?)",
-        album_info_data
-    )
-
-def insert_music_groups(cursor):
-    groups = [
-        ('The Beatles', 4, '1960-08-01'),
-        ('Queen', 4, '1970-06-27'),
-        ('Pink Floyd', 3, '1965-01-01'),
-        ('Metallica', 4, '1981-10-28'),
-        ('Led Zeppelin', 4, '1968-09-25'),
-        ('Nirvana', 3, '1987-01-01'),
-        ('AC/DC', 5, '1973-11-01'),
-        ('Eagles', 5, '1971-02-01'),
-        ('Fleetwood Mac', 5, '1967-07-01'),
-        ('The Rolling Stones', 4, '1962-07-12'),
-        ('Guns N Roses', 5, '1985-03-01'),
-        ('Black Sabbath', 4, '1968-09-01'),
-        ('Joy Division', 4, '1976-01-01'),
-        ('Daft Punk', 2, '1993-01-01'),
-        ('Red Hot Chili Peppers', 4, '1983-01-01'),
-        ('Radiohead', 5, '1985-01-01'),
-        ('U2', 4, '1976-09-25'),
-        ('Coldplay', 4, '1996-01-01'),
-        ('Linkin Park', 6, '1996-01-01'),
-        ('Green Day', 3, '1987-01-01')
-    ]
-    
-    # Check for existing groups first to avoid unique constraint error
-    cursor.execute("SELECT group_name FROM MusicGroup")
-    existing_groups = {row[0] for row in cursor.fetchall()}
-    
-    # Filter out groups that already exist in the database
-    new_groups = [(name, members, date) for name, members, date in groups if name not in existing_groups]
-    
-    if not new_groups:
-        print("No new music groups to insert - all groups already exist")
-        return
-    
-    print(f"Inserting {len(new_groups)} new music groups")
-    if new_groups:
-        print(f"Sample group: {new_groups[0]}")
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO MusicGroup (group_name, number_of_members, creation_date, group_image) VALUES (?, ?, ?, NULL)",
-        new_groups
-    )
-
-def insert_artists(cursor):
-    artists = [
-        ('John Lennon', 'UK', 'Guitar'),
-        ('Paul McCartney', 'UK', 'Bass'),
-        ('George Harrison', 'UK', 'Guitar'),
-        ('Ringo Starr', 'UK', 'Drums'),
-        ('Freddie Mercury', 'UK', 'Vocals'),
-        ('Brian May', 'UK', 'Guitar'),
-        ('Roger Taylor', 'UK', 'Drums'),
-        ('John Deacon', 'UK', 'Bass')
-    ]
-    cursor.executemany(
-        "INSERT INTO Artist (full_name, origin_country, instrument) VALUES (?, ?, ?)",
-        artists
-    )
-
-def insert_album_groups(cursor, album_id_map, group_id_map):
-    relationships = [
-        ('This Fire', 'The Beatles'),
-        ('This Fire', 'Metallica'),
-        ('The Wall', 'Queen'),
-        ('The Wall', 'Led Zeppelin'),
-        ('Evolve', 'Pink Floyd'),
-        ('The Division Bell', 'Pink Floyd'),
-        ('Led Zeppelin IV', 'Led Zeppelin'),
-        ('A Night at the Opera', 'Queen'),
-        ('Master of Puppets', 'Metallica'),
-        ('Unknown Pleasures', 'Joy Division'),
-        ('Discovery', 'Daft Punk'),
-        ('Physical Graffiti', 'Led Zeppelin'),
-        ('Imagine', 'The Beatles'),
-        ('Hotel California', 'Eagles'),
-        ('Thriller', 'The Beatles'),
-        ('Nevermind', 'Nirvana'),
-        ('Back in Black', 'AC/DC'),
-        ('Rumours', 'Fleetwood Mac')
-    ]
-    
-    # Check for valid album and group IDs
-    valid_relationships = [(album, group) for album, group in relationships 
-                          if album in album_id_map and group in group_id_map]
-    
-    # Check for existing relationships to avoid unique constraint error
-    cursor.execute("SELECT a.album_name, g.group_name FROM Album_Group ag "
-                  "JOIN Album a ON ag.album_id = a.album_id "
-                  "JOIN MusicGroup g ON ag.group_id = g.group_id")
-    existing_relationships = {(row[0], row[1]) for row in cursor.fetchall()}
-    
-    # Filter out relationships that already exist
-    new_relationships = [(album, group) for album, group in valid_relationships 
-                        if (album, group) not in existing_relationships]
-    
-    if not new_relationships:
-        print("No new album-group relationships to insert - all relationships already exist")
-        return
-    
-    print(f"Inserting {len(new_relationships)} new album-group relationships")
-    if new_relationships:
-        print(f"Sample relationship: {new_relationships[0]}")
-    
-    # Prepare data for executemany
-    relationship_data = [(album_id_map[album], group_id_map[group]) for album, group in new_relationships]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO Album_Group (album_id, group_id) VALUES (?, ?)",
-        relationship_data
-    )
-
-def insert_history(cursor, user_id_map, song_id_map):
-    history_entries = [
-        ('Tunceredits', 'Stairway to Heaven', '2023-01-01T12:00:00', 210),
-        ('345math', 'Bohemian Rhapsody', '2024-01-01T12:00:00', 210),
-        ('EFCK', 'Metal Gear Solid 3 Theme', '2024-12-01T12:00:00', 210),
-        ('Batman', 'Bilgewater', '2024-11-15T12:00:00', 210),
-        ('Charlie', 'Kiss of Death', '2024-11-01T12:00:00', 210),
-        ('musiclover', 'Imagine', '2024-05-10T14:30:00', 180),
-        ('jazzcat', 'All Along the Watchtower', '2024-05-11T09:15:00', 240),
-        ('rocknroller', 'Sweet Child O Mine', '2024-05-12T18:45:00', 300),
-        ('beatmaker', 'Lose Yourself', '2024-05-13T22:20:00', 320),
-        ('classicfan', 'Piano Sonata No. 14', '2024-05-14T16:10:00', 600),
-        ('rapperfan', '99 Problems', '2024-05-15T13:40:00', 226),
-        ('livemusic', 'Harvest Moon', '2024-05-16T20:30:00', 312),
-        ('vinyladdict', 'Love Will Tear Us Apart', '2024-05-17T19:05:00', 218),
-        ('concertgoer', 'One More Time', '2024-05-18T23:55:00', 320),
-        ('producer', 'Thriller', '2024-05-19T17:25:00', 358),
-        ('Tunceredits', 'Hotel California', '2024-05-20T08:30:00', 390),
-        ('345math', 'Nothing Else Matters', '2024-05-21T11:45:00', 386),
-        ('EFCK', 'Imagine', '2024-05-22T15:15:00', 183),
-        ('Charlie', 'Billie Jean', '2024-05-23T21:10:00', 293),
-        ('mgs6', 'Kashmir', '2024-05-24T10:05:00', 508)
-    ]
-    
-    # Prepare data for executemany
-    history_data = [(user_id_map[user], start_time, duration, song_id_map[song]) 
-                   for user, song, start_time, duration in history_entries]
-    
-    # Use executemany for bulk insertion
-    cursor.executemany(
-        "INSERT INTO History (user_id, start_time, duration, song_id) VALUES (?, ?, ?, ?)",
-        history_data
-    )
